@@ -48,74 +48,74 @@ class Simulator:
         #     "#I": self._handle_i
         # }
 
-        # A stupid greedy agent
-        def _handle_a(self, agent):
-            # A robot agent (pickup and delivery robot) at a vertex automatically picks up a package at that vertex
-            # if there is one.
+    # A stupid greedy agent
+    def _handle_a(self, agent):
+        # A robot agent (pickup and delivery robot) at a vertex automatically picks up a package at that vertex
+        # if there is one.
+        for package in self.state["placed_packages"]:
+            if package["package_at"] == agent["location"] and package["from_time"]<=package["time"]:
+                agent["packages"].append(package)
+                self.state["placed_packages"].remove(package)
+                self.state["pickedUp_packages"].append(package)
+
+        for package in agent["packages"]:
+            # The robot agent delivers the packages and scores
+            if package["deliver_to"] == agent["location"] and package["before_time"]>package["time"]:
+                agent["packages"].remove(package)
+                agent["score"] += 1
+                self.state["pickedUp_packages"].remove(package)
+            # The deadline to deliver this packages has passed
+            if self.package["before_time"] <= self.state["time"]:
+                agent["packages"].remove(package)
+                self.state["pickedUp_packages"].remove(package)
+
+        graph = Graph(self.state)
+        # If the agent is not holding a package, it should compute the shortest currently unblocked path to
+        # the next vertex with a package to be delivered, and try to follow it.
+        if len(agent["packages"]) == 0:
+            paths = []
             for package in self.state["placed_packages"]:
-                if package["package_at"] == agent["location"] and package["from_time"]<=package["time"]:
-                    agent["packages"].append(package)
-                    self.state["placed_packages"].remove(package)
-                    self.state["pickedUp_packages"].append(package)
-             
-            for package in agent["packages"]:   
-                # The robot agent delivers the packages and scores
-                if package["deliver_to"] == agent["location"] and package["before_time"]>package["time"]:
-                    agent["packages"].remove(package)
-                    agent["score"] += 1
-                    self.state["pickedUp_packages"].remove(package)
-                # The deadline to deliver this packages has passed
-                if self.package["before_time"] <= self.state["time"]:
-                    agent["packages"].remove(package)
-                    self.state["pickedUp_packages"].remove(package)
+                cost, traversePos = graph.dijkstra(
+                    agent["location"][0],
+                    agent["location"][1],
+                    package["package_at"][0],
+                    package["package_at"][1]
+                )
+                if (cost, traversePos) != (1e7, []):
+                    paths.append(TraverseAction(cost, traversePos))
 
-            graph = Graph(self.state)
-            # If the agent is not holding a package, it should compute the shortest currently unblocked path to
-            # the next vertex with a package to be delivered, and try to follow it.
-            if len(agent["packages"]) == 0:
-                paths = []
-                for package in self.state["placed_packages"]:
-                    cost, traversePos = graph.dijkstra(
-                        agent["location"][0],
-                        agent["location"][1],
-                        package["package_at"][0],
-                        package["package_at"][1]
-                    )
-                    if (cost, traversePos) != (1e7, []):
-                        paths.append(TraverseAction(cost, traversePos))
-                
-                if len(paths) == 0:
-                    return "no-op"
-                
-                else:
-                    _, nextTraversePos = min(paths)
-                    
-                    for edge in self.state["edges"]:
-                        if edge["from"] == agent["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
-                            edge["type"] = "always blocked"
-                            
-                    agent["location"] = nextTraversePos
+            if len(paths) == 0:
+                return "no-op"
 
-            # If it is holding a package, it should find the shortest path to a delivery location for the package,
-            # and try to follow it.
-            # If holding more than 1 package, attempt to deliver the one with a shorter path to its delivery location.
-            else:   
-                paths = []
-                for package in agent["packages"]:
-                    cost, traversePos = graph.dijkstra(agent["location"][0],agent["location"][1],package["deliver_to"][0],package["deliver_to"][1])
-                    if (cost, traversePos) != (1e7, []):
-                        paths.append(TraverseAction(cost, traversePos))
-                
-                if len(paths) == 0:
-                    return "no-op"
-                
-                else:
-                    #### Verify cost matches the deadline???
-                    cost, nextTraversePos = min(paths)
-                    for edge in self.state["edges"]:
-                        if edge["from"] == agent["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
-                            edge["type"] = "always blocked"
-                    agent["location"] = nextTraversePos
+            else:
+                _, nextTraversePos = min(paths)
+
+                for edge in self.state["edges"]:
+                    if edge["from"] == agent["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
+                        edge["type"] = "always blocked"
+
+                agent["location"] = nextTraversePos
+
+        # If it is holding a package, it should find the shortest path to a delivery location for the package,
+        # and try to follow it.
+        # If holding more than 1 package, attempt to deliver the one with a shorter path to its delivery location.
+        else:
+            paths = []
+            for package in agent["packages"]:
+                cost, traversePos = graph.dijkstra(agent["location"][0],agent["location"][1],package["deliver_to"][0],package["deliver_to"][1])
+                if (cost, traversePos) != (1e7, []):
+                    paths.append(TraverseAction(cost, traversePos))
+
+            if len(paths) == 0:
+                return "no-op"
+
+            else:
+                #### Verify cost matches the deadline???
+                cost, nextTraversePos = min(paths)
+                for edge in self.state["edges"]:
+                    if edge["from"] == agent["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
+                        edge["type"] = "always blocked"
+                agent["location"] = nextTraversePos
          
         # Extract packages from their pool and place them if it is their time to appear.
         # Remove any unpicked package whose time to be delivered has passed
