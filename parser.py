@@ -52,21 +52,25 @@ class Parser:
     def _handle_a(self, line_data_args):
         agent = {
             "type": "Normal",
-            "start_at": [int(line_data_args[1]), int(line_data_args[2])]
+            "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "score" : 0,
+            "packages": list(),
+            "numberOfActions":0
         }
         self.parsed_data["agents"].append(agent)
 
     def _handle_h(self, line_data_args):
         agent = {
             "type": "Human",
-            "start_at": [int(line_data_args[1]), int(line_data_args[2])]
+            "location": [int(line_data_args[1]), int(line_data_args[2])]
         }
         self.parsed_data["agents"].append(agent)
 
     def _handle_i(self, line_data_args):
         agent = {
             "type": "Interfering",
-            "start_at": [int(line_data_args[1]), int(line_data_args[2])]
+            "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "numberOfActions":0
         }
         self.parsed_data["agents"].append(agent)
 
