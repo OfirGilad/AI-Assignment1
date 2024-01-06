@@ -53,9 +53,9 @@ class Parser:
         agent = {
             "type": "Normal",
             "location": [int(line_data_args[1]), int(line_data_args[2])],
-            "score" : 0,
+            "score": 0,
             "packages": list(),
-            "numberOfActions":0
+            "number_of_actions": 0
         }
         self.parsed_data["agents"].append(agent)
 
@@ -70,7 +70,7 @@ class Parser:
         agent = {
             "type": "Interfering",
             "location": [int(line_data_args[1]), int(line_data_args[2])],
-            "numberOfActions":0
+            "number_of_actions": 0
         }
         self.parsed_data["agents"].append(agent)
 
