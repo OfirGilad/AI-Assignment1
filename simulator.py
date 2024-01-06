@@ -53,7 +53,7 @@ class Simulator:
         # A robot agent (pickup and delivery robot) at a vertex automatically picks up a package at that vertex
         # if there is one.
         for package in self.state["placed_packages"]:
-            if package["package_at"] == agent["location"] and package["from_time"]<=package["time"]:
+            if package["package_at"] == agent["location"] and package["from_time"] <= package["time"]:
                 agent["packages"].append(package)
                 self.state["placed_packages"].remove(package)
                 self.state["pickedUp_packages"].append(package)
@@ -102,7 +102,12 @@ class Simulator:
         else:
             paths = []
             for package in agent["packages"]:
-                cost, traversePos = graph.dijkstra(agent["location"][0],agent["location"][1],package["deliver_to"][0],package["deliver_to"][1])
+                cost, traversePos = graph.dijkstra(
+                    agent["location"][0],
+                    agent["location"][1],
+                    package["deliver_to"][0],
+                    package["deliver_to"][1]
+                )
                 if (cost, traversePos) != (1e7, []):
                     paths.append(TraverseAction(cost, traversePos))
 
