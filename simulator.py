@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan  6 12:59:10 2024
-
-@author: seanm
-"""
 from graph import Graph
 from search_algorithms import SearchAlgorithms
 
@@ -65,7 +59,7 @@ class Simulator:
                 agent["score"] += 1
                 self.state["pickedUp_packages"].remove(package)
             # The deadline to deliver this packages has passed
-            if self.package["before_time"] <= self.state["time"]:
+            if package["before_time"] <= self.state["time"]:
                 agent["packages"].remove(package)
                 self.state["pickedUp_packages"].remove(package)
 
@@ -123,24 +117,24 @@ class Simulator:
                         edge["type"] = "always blocked"
                 agent["location"] = nextTraversePos
          
-        # Extract packages from their pool and place them if it is their time to appear.
-        # Remove any unpicked package whose time to be delivered has passed
-        def distribute_packages():
-            for package in self.state["pool_packages"]:
-                if self.package["from_time"] <= self.state["time"]:
-                    self.state["pool_packages"].remove(package)
-                    self.state["placed_packages"].append(package)
-                    
-            for package in self.state["placed_packages"]:
-                if self.package["before_time"] <= self.state["time"]:
-                    self.state["placed_packages"].remove(package)
+    # Extract packages from their pool and place them if it is their time to appear.
+    # Remove any unpicked package whose time to be delivered has passed
+    def distribute_packages(self):
+        for package in self.state["pool_packages"]:
+            if package["from_time"] <= self.state["time"]:
+                self.state["pool_packages"].remove(package)
+                self.state["placed_packages"].append(package)
 
-        def simulate():
-            self.distribute_packages()
-            # The simulation ends when all packages have been delivered, or there is no path for any agent to pick up
-            # or deliver any more packages on time.
-            if len(self.state["pool_packages"]) == 0 and len(self.state["placed_packages"]) == 0 and len(self.state["pickedUp_packages"]) == 0:
-                return 
-           
-            #### Simulation content
-            self.state["time"] += 1
+        for package in self.state["placed_packages"]:
+            if package["before_time"] <= self.state["time"]:
+                self.state["placed_packages"].remove(package)
+
+    def simulate(self):
+        self.distribute_packages()
+        # The simulation ends when all packages have been delivered, or there is no path for any agent to pick up
+        # or deliver any more packages on time.
+        if len(self.state["pool_packages"]) == 0 and len(self.state["placed_packages"]) == 0 and len(self.state["pickedUp_packages"]) == 0:
+            return
+
+        #### Simulation content
+        self.state["time"] += 1

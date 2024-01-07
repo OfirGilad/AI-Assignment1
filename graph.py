@@ -9,31 +9,31 @@ class Graph:
         self.special_edges = parsed_data["special_edges"]
         self.agents = parsed_data["agents"]
 
-        self.total_nodes = self.X * self.Y
+        self.total_vertices = self.X * self.Y
         self.adjacency_matrix = None
         self._build_adjacency_matrix()
 
-    def _coordinate_to_index(self, row, col):
+    def coordinates_to_vertex_index(self, row, col):
         if row < 0 or row >= self.X or col < 0 or col >= self.Y:
             raise ValueError("Adjacency Matrix out of bounds")
         return row * self.Y + col
 
     def _build_adjacency_matrix(self):
-        self.adjacency_matrix = np.zeros(shape=(self.total_nodes, self.total_nodes), dtype=int)
+        self.adjacency_matrix = np.zeros(shape=(self.total_vertices, self.total_vertices), dtype=int)
 
         for i in range(self.X):
             for j in range(self.Y):
-                current_node = self._coordinate_to_index(i, j)
+                current_node = self.coordinates_to_vertex_index(row=i, col=j)
 
                 # Connect with the right neighbor (if exists)
                 if j + 1 < self.Y:
-                    right_neighbor = self._coordinate_to_index(i, j + 1)
+                    right_neighbor = self.coordinates_to_vertex_index(row=i, col=j + 1)
                     self.adjacency_matrix[current_node, right_neighbor] = 1
                     self.adjacency_matrix[right_neighbor, current_node] = 1
 
                 # Connect with the bottom neighbor (if exists)
                 if i + 1 < self.X:
-                    bottom_neighbor = self._coordinate_to_index(i + 1, j)
+                    bottom_neighbor = self.coordinates_to_vertex_index(row=i + 1, col=j)
                     self.adjacency_matrix[current_node, bottom_neighbor] = 1
                     self.adjacency_matrix[bottom_neighbor, current_node] = 1
 
@@ -42,11 +42,31 @@ class Graph:
     def apply_special_edges(self):
         for special_edge in self.special_edges:
             if special_edge["type"] == "always blocked":
-                first_node = self._coordinate_to_index(special_edge["from"][0], special_edge["from"][1])
-                second_node = self._coordinate_to_index(special_edge["to"][0], special_edge["to"][1])
+                first_node = self.coordinates_to_vertex_index(row=special_edge["from"][0], col=special_edge["from"][1])
+                second_node = self.coordinates_to_vertex_index(row=special_edge["to"][0], col=special_edge["to"][1])
 
                 self.adjacency_matrix[first_node, second_node] = 0
                 self.adjacency_matrix[second_node, first_node] = 0
+
+    def is_path_available(self, current_vertex: list, next_vertex: list):
+        current_vertex_index = self.coordinates_to_vertex_index(row=current_vertex[0], col=current_vertex[1])
+        next_vertex_index = self.coordinates_to_vertex_index(row=next_vertex[0], col=next_vertex[1])
+
+        # Check if next vertex is occupied
+        for agent in self.agents:
+            agent_vertex_index = self.coordinates_to_vertex_index(row=agent["location"][0], col=agent["location"][1])
+            if agent_vertex_index == next_vertex_index:
+                return False
+
+        # Check if there is an available edge
+        edge_validation = (
+            self.adjacency_matrix[current_vertex_index, next_vertex_index] == 0 or
+            self.adjacency_matrix[current_vertex_index, next_vertex_index] == 0
+        )
+        if edge_validation:
+            return False
+
+        return True
 
     def update_state(self, state):
         self.packages = state["packages"]

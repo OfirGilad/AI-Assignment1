@@ -1,3 +1,4 @@
+import numpy as np
 from graph import Graph
 
 
@@ -40,10 +41,11 @@ class SearchAlgorithms:
     # the shortest path algorithm for a graph represented
     # using adjacency matrix representation
     def dijkstra(self, srcX, srcY, targetX, targetY):
-        dist = ([0] * self.graph.Y) * self.graph.X
+        total_vertices = self.graph.X * self.graph.Y
+        dist = np.zeros(shape=(total_vertices, total_vertices), dtype=np.float32)
         dist[srcX, srcY] = 0
         prev = ([None] * self.graph.Y) * self.graph.X
-        sptSet = ([False] * self.graph.Y) * self.graph.X
+        sptSet = np.zeros(shape=(total_vertices, total_vertices), dtype=bool)
 
         for cX in range(0, self.graph.X, 1):
             for cY in range(0, self.graph.Y, 1):
@@ -62,8 +64,8 @@ class SearchAlgorithms:
                 # of the picked vertex only if the current
                 # distance is greater than new distance and
                 # the vertex in not in the shortest path tree
-                for vX in range(0, self.X, 1):
-                    for vY in range(0, self.Y, 1):
+                for vX in range(0, self.graph.X, 1):
+                    for vY in range(0, self.graph.Y, 1):
                         for edge in self.graph.special_edges:
                             for agent in self.graph.agents:
                                 if edge["type"] != "always blocked" and agent["location"] != [vX, vY] and edge["from"] == [uX, uY] and edge["to"] == [vX, vY] and sptSet[vX, vY] is False and dist[vX, vY] > dist[uX, uY] + 1:
