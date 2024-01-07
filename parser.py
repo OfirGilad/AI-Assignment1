@@ -4,7 +4,7 @@ class Parser:
             "x": 0,
             "y": 0,
             "packages": list(),
-            "edges": list(),
+            "special_edges": list(),
             "agents": list()
         }
         self.options_dict = {
@@ -39,7 +39,7 @@ class Parser:
             "from": [int(line_data_args[1]), int(line_data_args[2])],
             "to": [int(line_data_args[3]), int(line_data_args[4])],
         }
-        self.parsed_data["edges"].append(edge)
+        self.parsed_data["special_edges"].append(edge)
 
     def _handle_f(self, line_data_args):
         edge = {
@@ -47,7 +47,7 @@ class Parser:
             "from": [int(line_data_args[1]), int(line_data_args[2])],
             "to": [int(line_data_args[3]), int(line_data_args[4])],
         }
-        self.parsed_data["edges"].append(edge)
+        self.parsed_data["special_edges"].append(edge)
 
     def _handle_a(self, line_data_args):
         agent = {

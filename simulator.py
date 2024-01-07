@@ -4,8 +4,8 @@ Created on Sat Jan  6 12:59:10 2024
 
 @author: seanm
 """
-from parser import Parser
 from graph import Graph
+from search_algorithms import SearchAlgorithms
 
 
 class TraverseAction:
@@ -70,12 +70,13 @@ class Simulator:
                 self.state["pickedUp_packages"].remove(package)
 
         graph = Graph(self.state)
+        search_algorithms = SearchAlgorithms(graph=graph)
         # If the agent is not holding a package, it should compute the shortest currently unblocked path to
         # the next vertex with a package to be delivered, and try to follow it.
         if len(agent["packages"]) == 0:
             paths = []
             for package in self.state["placed_packages"]:
-                cost, traversePos = graph.dijkstra(
+                cost, traversePos = search_algorithms.dijkstra(
                     agent["location"][0],
                     agent["location"][1],
                     package["package_at"][0],
@@ -102,7 +103,7 @@ class Simulator:
         else:
             paths = []
             for package in agent["packages"]:
-                cost, traversePos = graph.dijkstra(
+                cost, traversePos = search_algorithms.dijkstra(
                     agent["location"][0],
                     agent["location"][1],
                     package["deliver_to"][0],
