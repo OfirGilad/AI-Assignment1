@@ -2,12 +2,12 @@ import numpy as np
 
 
 class Graph:
-    def __init__(self, parsed_data):
+    def __init__(self, parsed_data: dict):
         self.X = parsed_data["x"] + 1
         self.Y = parsed_data["y"] + 1
-        self.packages = parsed_data["packages"]
-        self.special_edges = parsed_data["special_edges"]
-        self.agents = parsed_data["agents"]
+        self.packages = parsed_data.get("packages", list())
+        self.special_edges = parsed_data.get("special_edges", list())
+        self.agents = parsed_data.get("agents", list())
 
         self.total_vertices = self.X * self.Y
         self.adjacency_matrix = None
@@ -48,9 +48,15 @@ class Graph:
                 self.adjacency_matrix[first_node, second_node] = 0
                 self.adjacency_matrix[second_node, first_node] = 0
 
-    def is_path_available(self, current_vertex: list, next_vertex: list):
-        current_vertex_index = self.coordinates_to_vertex_index(row=current_vertex[0], col=current_vertex[1])
-        next_vertex_index = self.coordinates_to_vertex_index(row=next_vertex[0], col=next_vertex[1])
+    def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
+        if mode == "Coords":
+            current_vertex_index = self.coordinates_to_vertex_index(row=current_vertex[0], col=current_vertex[1])
+            next_vertex_index = self.coordinates_to_vertex_index(row=next_vertex[0], col=next_vertex[1])
+        elif mode == "NodeIndices":
+            current_vertex_index = current_vertex
+            next_vertex_index = next_vertex
+        else:
+            raise ValueError("Invalid mode")
 
         # Check if next vertex is occupied
         for agent in self.agents:
