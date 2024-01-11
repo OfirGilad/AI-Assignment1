@@ -74,29 +74,15 @@ class SearchAlgorithms:
     #
     #     return self.solution(dist=dist, prev=prev, src_x=src_x, src_y=src_y, dest_x=dest_x, dest_y=dest_y)
 
-    def _min_distance(self, distance, visited):
-        # Initialize minimum distance for next node
-        min_dist = 1e7
-        min_index = None
-
-        # Search not nearest vertex not in the shortest path tree
-        for vertex_index in range(self.graph.total_vertices):
-            if distance[vertex_index] < min_dist and visited[vertex_index] == False:
-                min_dist = distance[vertex_index]
-                min_index = vertex_index
-
-        return min_index
-
     def dijkstra(self, src: list, dest: list):
         # convert coordinates to node indices
         src_node_index = self.graph.coordinates_to_vertex_index(row=src[0], col=src[1])
         dest_node_index = self.graph.coordinates_to_vertex_index(row=dest[0], col=dest[1])
 
-        total_vertices = self.graph.total_vertices
-
         # Initialize distance array with infinity for all nodes except the source node
-        distance = np.full(total_vertices, np.inf)
-        distance[src_node_index] = 0
+        total_vertices = self.graph.total_vertices
+        distances = np.full(total_vertices, np.inf)
+        distances[src_node_index] = 0
 
         # Initialize an array to keep track of visited nodes
         visited = np.zeros(total_vertices, dtype=bool)
@@ -104,7 +90,17 @@ class SearchAlgorithms:
         # Main Dijkstra's algorithm loop
         for _ in range(total_vertices):
             # Find the unvisited node with the smallest distance
-            current_node = self._min_distance(distance=distance, visited=visited)
+            min_dist = np.inf
+            current_node = None
+
+            for vertex_index in range(self.graph.total_vertices):
+                if distances[vertex_index] < min_dist and not visited[vertex_index]:
+                    min_dist = distances[vertex_index]
+                    current_node = vertex_index
+
+            # Stop the algorithm if the destination is unreachable
+            if current_node is None:
+                break
 
             # Mark the current node as visited
             visited[current_node] = True
@@ -115,41 +111,49 @@ class SearchAlgorithms:
 
             # Update the distance array based on the current node
             for neighbor in range(total_vertices):
-                if not visited[neighbor] and self.graph.is_path_available(current_vertex=current_node, next_vertex=neighbor, mode="NodeIndices"):
-                    new_distance = distance[current_node] + self.graph.adjacency_matrix[current_node, neighbor]
-                    distance[neighbor] = min(distance[neighbor], new_distance)
+                path_validation = (
+                    not visited[neighbor] and
+                    self.graph.is_path_available(current_vertex=current_node, next_vertex=neighbor, mode="Indices")
+                )
+                if path_validation:
+                    new_distance = distances[current_node] + self.graph.adjacency_matrix[current_node, neighbor]
+                    neighbor_distance = float(distances[neighbor])
+                    distances[neighbor] = min(neighbor_distance, new_distance)
 
         # Reconstruct the shortest path
-        if distance[dest_node_index] == np.inf:
+        path = list()
+        if distances[dest_node_index] == np.inf:
             # No path exists from src to dest
-            return np.inf, list()
+            return np.inf, path
 
-        # Reconstruct the shortest path
-        path = [dest_node_index]
+        path.append(dest_node_index)
         while path[-1] != src_node_index:
             current_node = path[-1]
             previous_nodes = np.where(self.graph.adjacency_matrix[:, current_node] > 0)[0]
-            previous_node = min(previous_nodes, key=lambda node: distance[node])
+            previous_node = min(previous_nodes, key=lambda node: distances[node])
             path.append(previous_node)
 
         # Reverse the path to get it from src to dest
-        return distance[dest_node_index], path[::-1]
+        return distances[dest_node_index], path[::-1]
 
 
 def test_dijkstra():
     parsed_data = {
         "x": 2,
         "y": 2,
-        "special_edges": [{"type": "always blocked", "from": [0, 0], "to": [0, 1]},
-                          {"type": "always blocked", "from": [1, 0], "to": [1, 1]},
-                          {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
-                          {"type": "always blocked", "from": [1, 1], "to": [1, 2]}]
+        "special_edges": [
+            {"type": "always blocked", "from": [0, 0], "to": [0, 1]},
+            {"type": "always blocked", "from": [1, 0], "to": [1, 1]},
+            {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
+            {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
+            # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
+        ]
     }
     graph = Graph(parsed_data=parsed_data)
     # print(graph.adjacency_matrix)
     search_algorithms = SearchAlgorithms(graph=graph)
     sol = search_algorithms.dijkstra(src=[0, 0], dest=[2, 2])
-    print(sol)
+    print(f"Solution: {sol}")
 
 
 if __name__ == "__main__":

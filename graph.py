@@ -49,10 +49,12 @@ class Graph:
                 self.adjacency_matrix[second_node, first_node] = 0
 
     def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
+        # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_index = self.coordinates_to_vertex_index(row=current_vertex[0], col=current_vertex[1])
             next_vertex_index = self.coordinates_to_vertex_index(row=next_vertex[0], col=next_vertex[1])
-        elif mode == "NodeIndices":
+        # The input vertices are indices of the vertices on the graph
+        elif mode == "Indices":
             current_vertex_index = current_vertex
             next_vertex_index = next_vertex
         else:
@@ -60,9 +62,11 @@ class Graph:
 
         # Check if next vertex is occupied
         for agent in self.agents:
-            agent_vertex_index = self.coordinates_to_vertex_index(row=agent["location"][0], col=agent["location"][1])
-            if agent_vertex_index == next_vertex_index:
-                return False
+            agent_location = agent.get("location", None)
+            if agent_location is not None:
+                agent_vertex_index = self.coordinates_to_vertex_index(row=agent_location[0], col=agent_location[1])
+                if agent_vertex_index == next_vertex_index:
+                    return False
 
         # Check if there is an available edge
         edge_validation = (
