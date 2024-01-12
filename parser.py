@@ -32,7 +32,8 @@ class Parser:
             "deliver_to": [int(line_data_args[5]), int(line_data_args[6])],
             "before_time": int(line_data_args[7]),
             "package_id": self.current_package_id,
-            "state": "waiting"
+            "status": "waiting",
+            "holder_agent_id": -1
         }
         self.parsed_data["packages"].append(package)
         self.current_package_id += 1

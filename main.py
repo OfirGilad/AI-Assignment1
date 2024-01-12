@@ -7,9 +7,9 @@ def main():
     data_file_path = "./input.txt"
     parser = Parser()
     parse_data = parser.parse_data(data_filepath=data_file_path)
-    print(parse_data)
+    # print(parse_data)
     initial_state = State(state_data=parse_data)
-    print(initial_state.adjacency_matrix)
+    # print(initial_state.adjacency_matrix)
     simulator = Simulator(initial_state=initial_state)
     simulator.run()
 

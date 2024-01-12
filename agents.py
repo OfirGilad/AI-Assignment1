@@ -40,10 +40,14 @@ class Agent:
         }
 
     def human_action(self):
-        user_input = input("Enter your action: ")
-        if user_input == "print":
-            self.state.print_state()
-        return True
+        while True:
+            user_input = input("(Human) Enter your action: ")
+            if user_input == "print":
+                self.state.print_state()
+            elif user_input == "next":
+                break
+            else:
+                print("Invalid input! Write either 'print' or 'next'.")
 
     def _update_packages_status(self, agent_data):
         current_placed_packages = self.state.placed_packages
@@ -52,6 +56,7 @@ class Agent:
                 agent_data["packages"].append(package)
                 self.state.placed_packages.remove(package)
                 package["status"] = "picked"
+                package["holder_agent_id"] = self.agent_idx
                 self.state.picked_packages.append(package)
 
         current_pickup_packages = self.state.picked_packages
