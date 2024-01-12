@@ -1,20 +1,20 @@
-import numpy as np
-
 from state import State
 from search_algorithms import SearchAlgorithms
 
 
 class TraverseAction:
-    def __init__(self, cost, traverse_pos):
-        self.cost = cost
+    def __init__(self, solution_cost, traverse_pos, step_cost):
+        self.solution_cost = solution_cost
         self.traverse_pos = traverse_pos
+        self.step_cost = step_cost
 
     # Here and elsewhere, if needed, break ties by preferring lower-numbered vertices in the x axis
     # and then in the y axis.
     def __lt__(self, other):
         validation = (
-            self.cost < other.cost or
-            (self.cost == other.cost and
+            self.solution_cost < other.solution_cost or
+            self.step_cost < other.step_cost or
+            (self.solution_cost == other.solution_cost and
                 (self.traverse_pos[0] < other.traverse_pos[0] or
                     (self.traverse_pos[0] == other.traverse_pos[0] and
                         self.traverse_pos[1] < other.traverse_pos[1]
@@ -26,7 +26,11 @@ class TraverseAction:
 
     # Two objects are defined as identical if their state are equal
     def __eq__(self, other):
-        return (self.cost, self.traverse_pos) == (other.cost, other.traversePos)
+        return (
+            self.solution_cost, self.traverse_pos, self.step_cost
+        ) == (
+            other.solution_cost, other.traverse_pos, other.step_cost
+        )
 
 
 class Agent:
@@ -65,12 +69,10 @@ class Agent:
         for package in current_pickup_packages:
             if package["deliver_to"] == agent_data["location"]:
                 agent_data["packages"].remove(package)
+                agent_data["score"] += 1
                 self.state.picked_packages.remove(package)
                 package["status"] = "delivered"
                 self.state.archived_packages.append(package)
-
-                agent_data["packages"].remove(package)
-                agent_data["score"] += 1
 
         return agent_data
 
@@ -84,15 +86,25 @@ class Agent:
         traverse_actions = list()
         # Find path for packages to deliver
         for package in agent_data["packages"]:
-            cost, traverse_pos = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
-            if (cost, traverse_pos) != (np.inf, None):
-                traverse_actions.append(TraverseAction(cost, traverse_pos))
+            step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
+            if step is not None:
+                solution_cost, traverse_pos, step_cost = step
+                traverse_actions.append(TraverseAction(
+                    solution_cost=solution_cost,
+                    traverse_pos=traverse_pos,
+                    step_cost=step_cost
+                ))
 
         # Find path for packages to collect
         for package in self.state.placed_packages:
-            cost, traverse_pos = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
-            if (cost, traverse_pos) != (np.inf, None):
-                traverse_actions.append(TraverseAction(cost, traverse_pos))
+            step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
+            if step is not None:
+                solution_cost, traverse_pos, step_cost = step
+                traverse_actions.append(TraverseAction(
+                    solution_cost=solution_cost,
+                    traverse_pos=traverse_pos,
+                    step_cost=step_cost
+                ))
 
         if len(traverse_actions) == 0:
             self.state.agents[self.agent_idx] = agent_data

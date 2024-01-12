@@ -66,18 +66,21 @@ class SearchAlgorithms:
 
         # Reverse the path to get it from src to dest
         solution_path = path[::-1]
-        print(f"Solution in vertices indices: {distances[dest_node_index], solution_path}")
-        print(f"Solution in coordinate: {[self.state.vertex_index_to_coordinates(i) for i in solution_path]}")
+        # print(f"Solution in vertices indices: {distances[dest_node_index], solution_path}")
+        # print(f"Solution in coordinate: {[self.state.vertex_index_to_coordinates(i) for i in solution_path]}")
 
         return distances[dest_node_index], solution_path, distances
 
     def dijkstra_step(self,  src: list, dest: list):
-        cost, solution_path, distances = self.dijkstra(src=src, dest=dest)
+        solution_cost, solution_path, distances = self.dijkstra(src=src, dest=dest)
 
-        next_vertex_index = solution_path[1]
-        traverse_pos = self.state.vertex_index_to_coordinates(idx=next_vertex_index)
-        cost = distances[next_vertex_index]
-        return cost, traverse_pos
+        if solution_path is not None:
+            next_vertex_index = solution_path[1]
+            traverse_pos = self.state.vertex_index_to_coordinates(idx=next_vertex_index)
+            step_cost = distances[next_vertex_index]
+            return solution_cost, traverse_pos, step_cost
+        else:
+            return None
 
 
 def test_dijkstra():

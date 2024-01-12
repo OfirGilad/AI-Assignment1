@@ -35,8 +35,8 @@ class State:
 
         row = idx // self.Y
         col = idx % self.Y
-
-        return row, col
+        coords = [row, col]
+        return coords
 
     def _apply_special_edges(self):
         for special_edge in self.special_edges:
