@@ -8,8 +8,8 @@ class SearchAlgorithms:
 
     def dijkstra(self, src: list, dest: list):
         # convert coordinates to node indices
-        src_node_index = self.state.coordinates_to_vertex_index(row=src[0], col=src[1])
-        dest_node_index = self.state.coordinates_to_vertex_index(row=dest[0], col=dest[1])
+        src_node_index = self.state.coordinates_to_vertex_index(coords=src)
+        dest_node_index = self.state.coordinates_to_vertex_index(coords=dest)
 
         # Initialize distance array with infinity for all nodes except the source node
         total_vertices = self.state.total_vertices
@@ -52,13 +52,12 @@ class SearchAlgorithms:
                     neighbor_distance = float(distances[neighbor])
                     distances[neighbor] = min(neighbor_distance, new_distance)
 
-        # Reconstruct the shortest path
-        path = list()
+        # Check if no path exists from src to dest
         if distances[dest_node_index] == np.inf:
-            # No path exists from src to dest
-            return np.inf, path
+            return np.inf, None, distances
 
-        path.append(dest_node_index)
+        # Reconstruct the shortest path
+        path = [dest_node_index]
         while path[-1] != src_node_index:
             current_node = path[-1]
             previous_nodes = np.where(self.state.adjacency_matrix[:, current_node] > 0)[0]
@@ -66,7 +65,19 @@ class SearchAlgorithms:
             path.append(previous_node)
 
         # Reverse the path to get it from src to dest
-        return distances[dest_node_index], path[::-1]
+        solution_path = path[::-1]
+        print(f"Solution in vertices indices: {distances[dest_node_index], solution_path}")
+        print(f"Solution in coordinate: {[self.state.vertex_index_to_coordinates(i) for i in solution_path]}")
+
+        return distances[dest_node_index], solution_path, distances
+
+    def dijkstra_step(self,  src: list, dest: list):
+        cost, solution_path, distances = self.dijkstra(src=src, dest=dest)
+
+        next_vertex_index = solution_path[1]
+        traverse_pos = self.state.vertex_index_to_coordinates(idx=next_vertex_index)
+        cost = distances[next_vertex_index]
+        return cost, traverse_pos
 
 
 def test_dijkstra():
@@ -84,8 +95,8 @@ def test_dijkstra():
     state = State(state_data=parsed_data)
     # print(graph.adjacency_matrix)
     search_algorithms = SearchAlgorithms(state=state)
-    sol = search_algorithms.dijkstra(src=[0, 0], dest=[2, 2])
-    print(f"Solution: {sol}")
+    sol = search_algorithms.dijkstra_step(src=[0, 0], dest=[2, 2])
+    print(f"Step Solution: {sol}")
 
 
 if __name__ == "__main__":

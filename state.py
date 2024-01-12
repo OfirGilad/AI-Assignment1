@@ -22,16 +22,27 @@ class State:
         self.archived_packages = state_data.get("archived_packages", list())
         self._update_packages_info()
 
-    def coordinates_to_vertex_index(self, row, col):
+    def coordinates_to_vertex_index(self, coords):
+        row, col = coords
         if row < 0 or row >= self.X or col < 0 or col >= self.Y:
-            raise ValueError("Adjacency Matrix out of bounds")
+            raise ValueError("Coordinates out of bounds")
+
         return row * self.Y + col
+
+    def vertex_index_to_coordinates(self, idx):
+        if idx < 0 or idx > self.total_vertices:
+            raise ValueError("Vertex index out of bounds")
+
+        row = idx // self.Y
+        col = idx % self.Y
+
+        return row, col
 
     def _apply_special_edges(self):
         for special_edge in self.special_edges:
             if special_edge["type"] == "always blocked":
-                first_node = self.coordinates_to_vertex_index(row=special_edge["from"][0], col=special_edge["from"][1])
-                second_node = self.coordinates_to_vertex_index(row=special_edge["to"][0], col=special_edge["to"][1])
+                first_node = self.coordinates_to_vertex_index(coords=special_edge["from"])
+                second_node = self.coordinates_to_vertex_index(coords=special_edge["to"])
 
                 self.adjacency_matrix[first_node, second_node] = 0
                 self.adjacency_matrix[second_node, first_node] = 0
@@ -41,17 +52,17 @@ class State:
 
         for i in range(self.X):
             for j in range(self.Y):
-                current_node = self.coordinates_to_vertex_index(row=i, col=j)
+                current_node = self.coordinates_to_vertex_index(coords=[i, j])
 
                 # Connect with the right neighbor (if exists)
                 if j + 1 < self.Y:
-                    right_neighbor = self.coordinates_to_vertex_index(row=i, col=j + 1)
+                    right_neighbor = self.coordinates_to_vertex_index(coords=[i, j + 1])
                     self.adjacency_matrix[current_node, right_neighbor] = 1
                     self.adjacency_matrix[right_neighbor, current_node] = 1
 
                 # Connect with the bottom neighbor (if exists)
                 if i + 1 < self.X:
-                    bottom_neighbor = self.coordinates_to_vertex_index(row=i + 1, col=j)
+                    bottom_neighbor = self.coordinates_to_vertex_index(coords=[i + 1, j])
                     self.adjacency_matrix[current_node, bottom_neighbor] = 1
                     self.adjacency_matrix[bottom_neighbor, current_node] = 1
 
@@ -88,8 +99,8 @@ class State:
     def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
         # The input vertices are list of coordinates
         if mode == "Coords":
-            current_vertex_index = self.coordinates_to_vertex_index(row=current_vertex[0], col=current_vertex[1])
-            next_vertex_index = self.coordinates_to_vertex_index(row=next_vertex[0], col=next_vertex[1])
+            current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
+            next_vertex_index = self.coordinates_to_vertex_index(coords=next_vertex)
         # The input vertices are indices of the vertices on the graph
         elif mode == "Indices":
             current_vertex_index = current_vertex
@@ -102,7 +113,7 @@ class State:
         for agent in self.agents:
             agent_location = agent.get("location", None)
             if agent_location is not None:
-                agent_vertex_index = self.coordinates_to_vertex_index(row=agent_location[0], col=agent_location[1])
+                agent_vertex_index = self.coordinates_to_vertex_index(coords=agent_location)
                 if agent_vertex_index == next_vertex_index:
                     return False
 
@@ -116,6 +127,25 @@ class State:
 
         # All validation passed
         return True
+
+    def perform_step(self, current_vertex: list, next_vertex: list):
+        if self.is_path_available(current_vertex=current_vertex, next_vertex=next_vertex):
+            # Break fragile edges
+            for edge_idx, edge in enumerate(self.special_edges):
+                if edge["from"] == current_vertex and edge["to"] == next_vertex and edge["type"] == "fragile":
+                    self.special_edges[edge_idx]["type"] = "always blocked"
+
+            # Return Action Name
+            if current_vertex[0] > next_vertex[0] and current_vertex[1] == next_vertex[1]:
+                return "Up"
+            elif current_vertex[0] < next_vertex[0] and current_vertex[1] == next_vertex[1]:
+                return "Down"
+            elif current_vertex[0] == next_vertex[0] and current_vertex[1] < next_vertex[1]:
+                return "Left"
+            else:
+                return "Right"
+        else:
+            raise ValueError("Invalid step was performed")
 
     def print_state(self):
         # Coordinates
@@ -160,23 +190,30 @@ class State:
             if agent["type"] == "Human":
                 print_data += f"#A 0 ; Agent {agent_idx}: Human agent\n"
             elif agent["type"] == "Normal":
+                a_location = agent["location"]
                 a_score = agent["score"]
                 a_actions = agent["number_of_actions"]
                 print_data += (
-                    f"#A 1  A {a_actions}  S {a_score} ; "
-                    f"Agent {agent_idx}: Normal agent, Number of actions: {a_actions}, Score: {a_score}\n"
+                    f"#A 1  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
+                    f"Agent {agent_idx}: Normal agent, "
+                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Number of actions: {a_actions}, "
+                    f"Score: {a_score}\n"
                 )
             elif agent["type"] == "Interfering":
+                a_location = agent["location"]
                 a_actions = agent["number_of_actions"]
                 print_data += (
                     f"#A 2  A {a_actions} ; "
-                    f"Agent {agent_idx}: Interfering Agent, Number of Actions: {a_actions}\n"
+                    f"Agent {agent_idx}: Interfering Agent, "
+                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Number of Actions: {a_actions}\n"
                 )
             else:
                 raise ValueError("Invalid agent type")
 
         print_data += "\n"
-        print_data += f"#T {self.time} ; Total Time unit passed: {self.time}\n"
+        print_data += f"#T {self.time} ; Total Time unit passed: {self.time}"
         print(print_data)
 
     def clone_state(self):

@@ -76,60 +76,45 @@ class Agent:
 
     def stupid_greedy_action(self):
         agent_data = self.state.agents[self.agent_idx]
+        search_algorithms = SearchAlgorithms(state=self.state)
 
         # Update agent picked and delivered packages
         agent_data = self._update_packages_status(agent_data=agent_data)
 
-        search_algorithms = SearchAlgorithms(state=self.state)
-        # If the agent is not holding a package, it should compute the shortest currently unblocked path to
-        # the next vertex with a package to be delivered, and try to follow it.
-        if len(agent_data["packages"]) == 0:
-            paths = []
-            for package in self.state.placed_packages:
-                cost, traverse_pos = search_algorithms.dijkstra(src=agent_data["location"], dest=package["package_at"])
-                if (cost, traverse_pos) != (np.inf, []):
-                    paths.append(TraverseAction(cost, traverse_pos))
+        traverse_actions = list()
+        # Find path for packages to deliver
+        for package in agent_data["packages"]:
+            cost, traverse_pos = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
+            if (cost, traverse_pos) != (np.inf, None):
+                traverse_actions.append(TraverseAction(cost, traverse_pos))
 
-            if len(paths) == 0:
-                return "no-op"
+        # Find path for packages to collect
+        for package in self.state.placed_packages:
+            cost, traverse_pos = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
+            if (cost, traverse_pos) != (np.inf, None):
+                traverse_actions.append(TraverseAction(cost, traverse_pos))
 
-            else:
-                _, nextTraversePos = min(paths)
-
-                for edge in self.state.special_edges:
-                    if edge["from"] == agent_data["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
-                        edge["type"] = "always blocked"
-
-                agent_data["location"] = nextTraversePos
-
-        # If it is holding a package, it should find the shortest path to a delivery location for the package,
-        # and try to follow it.
-        # If holding more than 1 package, attempt to deliver the one with a shorter path to its delivery location.
+        if len(traverse_actions) == 0:
+            self.state.agents[self.agent_idx] = agent_data
+            return self.state, "no-op"
         else:
-            paths = []
-            for package in agent_data["packages"]:
-                cost, traverse_pos = search_algorithms.dijkstra(
-                    src=agent_data["location"],
-                    dest=package["deliver_to"]
-                )
-                if (cost, traverse_pos) != (np.inf, []):
-                    paths.append(TraverseAction(cost, traverse_pos))
+            minimum_cost_action = min(traverse_actions)
+            next_traverse_pos = minimum_cost_action.traverse_pos
+            action_name = self.state.perform_step(
+                current_vertex=agent_data["location"],
+                next_vertex=next_traverse_pos
+            )
+            agent_data["location"] = next_traverse_pos
+            agent_data["number_of_actions"] += 1
+            agent_data = self._update_packages_status(agent_data=agent_data)
 
-            if len(paths) == 0:
-                return "no-op"
-
-            else:
-                #### Verify cost matches the deadline???
-                cost, nextTraversePos = min(paths)
-                for edge in self.state.special_edges:
-                    if edge["from"] == agent_data["location"] and edge["to"] == nextTraversePos and edge["type"] == "fragile":
-                        edge["type"] = "always blocked"
-                agent_data["location"] = nextTraversePos
+            self.state.agents[self.agent_idx] = agent_data
+            return self.state, action_name
 
     def saboteur_action(self):
-        return True
+        return self.state, "no-op"
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]
-        self.agent_action[agent_type]()
-        return self.state
+        state, action = self.agent_action[agent_type]()
+        return state, action

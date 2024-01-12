@@ -144,14 +144,17 @@ class Simulator:
         while True:
             # Check if goal achieved
             if self._goal_achieved():
+                print("Goal achieved")
                 break
 
             # Perform Agent Action
-            print(f"Agent {agent_idx} ({self.current_state.agents[agent_idx]['type']}) Turn")
+            agent_type = self.current_state.agents[agent_idx]['type']
+            print(f"Agent {agent_idx} ({agent_type}) Turn")
             self.current_state = self.current_state.clone_state()
             current_agent = Agent(agent_idx=agent_idx, state=self.current_state)
-            self.current_state = current_agent.perform_action()
+            self.current_state, action = current_agent.perform_action()
             self.states.append(self.current_state)
+            print(f"Agent {agent_idx} ({agent_type}) Action: {action}")
 
             # Update end of turn parameters
             agent_idx = (agent_idx + 1) % len(self.current_state.agents)
