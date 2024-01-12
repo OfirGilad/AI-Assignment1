@@ -49,6 +49,8 @@ class Agent:
             else:
                 print("Invalid input! Write either 'print' or 'next'.")
 
+        return self.state, "no-op"
+
     def _update_packages_status(self, agent_data):
         current_placed_packages = self.state.placed_packages
         for package in current_placed_packages:
@@ -75,8 +77,7 @@ class Agent:
     def stupid_greedy_action(self):
         agent_data = self.state.agents[self.agent_idx]
 
-        # A robot agent (pickup and delivery robot) at a vertex automatically picks up a package at that vertex
-        # if there is one.
+        # Update agent picked and delivered packages
         agent_data = self._update_packages_status(agent_data=agent_data)
 
         search_algorithms = SearchAlgorithms(state=self.state)

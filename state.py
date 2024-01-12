@@ -120,8 +120,8 @@ class State:
     def print_state(self):
         # Coordinates
         print_data = (
-            f"#X {self.X - 1} ; Maximum x coordinate\n"
-            f"#Y {self.Y - 1} ; Maximum y coordinate\n"
+            f"#X {self.X - 1} ; Maximum x coordinate: {self.X - 1}\n"
+            f"#Y {self.Y - 1} ; Maximum y coordinate: {self.Y - 1}\n"
         )
 
         # Packages
@@ -130,51 +130,53 @@ class State:
         for package_idx, package in enumerate(all_packages):
             if package["status"] == "waiting":
                 p_time = package['from_time']
-                print_data += f"#P 0  T {p_time} ; Package {package_idx} is waiting to appear at Time {p_time}\n"
+                print_data += f"#P 0  T {p_time} ; Package {package_idx}: waiting to appear, At time: {p_time}\n"
             elif package["status"] == "placed":
                 p_x = package["package_at"][0]
                 p_y = package["package_at"][1]
-                print_data += f"#P 1  L {p_x} {p_y} ; Package {package_idx} was placed on Location ({p_x},{p_y})\n"
+                print_data += f"#P 1  L {p_x} {p_y} ; Package {package_idx}: placed, On location: ({p_x},{p_y})\n"
             elif package["status"] == "picked":
                 p_agent_id = package["holder_agent_id"]
-                print_data += f"#P 2  A {p_agent_id} ; Package {package_idx} was picked by Agent {p_agent_id}\n"
+                print_data += f"#P 2  A {p_agent_id} ; Package {package_idx}: picked, By agent: {p_agent_id}\n"
             elif package["status"] == "delivered":
                 p_agent_id = package["holder_agent_id"]
-                print_data += f"#P 3  A {p_agent_id} ; Package {package_idx} was delivered by Agent {p_agent_id}\n"
+                print_data += f"#P 3  A {p_agent_id} ; Package {package_idx}: delivered, By agent {p_agent_id}\n"
             elif package["status"] == "disappeared":
                 p_time = package["before_time"]
-                print_data += f"#P 4  T {p_time} ; Package {package_idx} was disappeared at time {p_time}\n"
+                print_data += f"#P 4  T {p_time} ; Package {package_idx}: disappeared, At time {p_time}\n"
             else:
                 raise ValueError("Invalid package status")
 
         print_data += "\n"
         for edge_idx, edge in enumerate(self.special_edges):
             if edge["type"] == "always blocked":
-                print_data += f"#E 0 ; Edge {edge_idx} is always blocked\n"
+                print_data += f"#E 0 ; Edge {edge_idx}: always blocked\n"
             elif edge["type"] == "fragile":
-                print_data += f"#E 1 ; Edge {edge_idx} is fragile\n"
+                print_data += f"#E 1 ; Edge {edge_idx}: fragile\n"
             else:
                 raise ValueError("Invalid edge type")
 
         for agent_idx, agent in enumerate(self.agents):
             if agent["type"] == "Human":
-                print_data += f"#A 0 ; Agent {agent_idx} is a Human Agent\n"
+                print_data += f"#A 0 ; Agent {agent_idx}: Human agent\n"
             elif agent["type"] == "Normal":
                 a_score = agent["score"]
                 a_actions = agent["number_of_actions"]
                 print_data += (
                     f"#A 1  A {a_actions}  S {a_score} ; "
-                    f"Agent {agent_idx} is a Stupid Greedy Agent, Number of Actions: {a_actions}, Score: {a_score}\n"
+                    f"Agent {agent_idx}: Normal agent, Number of actions: {a_actions}, Score: {a_score}\n"
                 )
             elif agent["type"] == "Interfering":
                 a_actions = agent["number_of_actions"]
                 print_data += (
                     f"#A 2  A {a_actions} ; "
-                    f"Agent {agent_idx} is a Saboteur Agent, Number of Actions: {a_actions}\n"
+                    f"Agent {agent_idx}: Interfering Agent, Number of Actions: {a_actions}\n"
                 )
             else:
                 raise ValueError("Invalid agent type")
 
+        print_data += "\n"
+        print_data += f"#T {self.time} ; Total Time unit passed: {self.time}\n"
         print(print_data)
 
     def clone_state(self):
