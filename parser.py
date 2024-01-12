@@ -1,5 +1,6 @@
 class Parser:
     def __init__(self):
+        self.current_package_id = 0
         self.parsed_data = {
             "x": 0,
             "y": 0,
@@ -29,9 +30,12 @@ class Parser:
             "package_at": [int(line_data_args[1]), int(line_data_args[2])],
             "from_time": int(line_data_args[3]),
             "deliver_to": [int(line_data_args[5]), int(line_data_args[6])],
-            "before_time": int(line_data_args[7])
+            "before_time": int(line_data_args[7]),
+            "package_id": self.current_package_id,
+            "state": "waiting"
         }
         self.parsed_data["packages"].append(package)
+        self.current_package_id += 1
 
     def _handle_b(self, line_data_args):
         edge = {
