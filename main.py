@@ -1,4 +1,5 @@
-from parser import Parser
+
+from ASCII_parser import Parser
 from state import State
 from simulator import Simulator
 

@@ -51,7 +51,7 @@ class Agent:
             elif user_input == "next":
                 break
             else:
-                print("Invalid input! Write either 'print' or 'next'.")
+                print(f"Invalid input: {user_input}! Write either 'print' or 'next'.")
 
         return self.state, "no-op"
 
@@ -85,22 +85,23 @@ class Agent:
 
         traverse_actions = list()
         # Find path for packages to deliver
-        for package in agent_data["packages"]:
-            step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
-            if step is not None:
-                solution_cost, traverse_pos, step_cost = step
-                traverse_actions.append(TraverseAction(
+        if len(agent_data["packages"])>0:
+            for package in agent_data["packages"]:
+                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
+                if step is not None:
+                    solution_cost, traverse_pos, step_cost = step
+                    traverse_actions.append(TraverseAction(
                     solution_cost=solution_cost,
                     traverse_pos=traverse_pos,
                     step_cost=step_cost
                 ))
-
+        else:
         # Find path for packages to collect
-        for package in self.state.placed_packages:
-            step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
-            if step is not None:
-                solution_cost, traverse_pos, step_cost = step
-                traverse_actions.append(TraverseAction(
+            for package in self.state.placed_packages:
+                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
+                if step is not None:
+                    solution_cost, traverse_pos, step_cost = step
+                    traverse_actions.append(TraverseAction(
                     solution_cost=solution_cost,
                     traverse_pos=traverse_pos,
                     step_cost=step_cost
@@ -124,7 +125,48 @@ class Agent:
             return self.state, action_name
 
     def saboteur_action(self):
-        return self.state, "no-op"
+        agent_data = self.state.agents[self.agent_idx]
+        search_algorithms = SearchAlgorithms(state=self.state)
+        traverse_actions = list()
+        
+        #Find path a to a fragile edge
+        for edge in self.state.special_edges:
+            if edge["type"] == "fragile" and agent_data["location"]!=edge["from"]:
+                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["from"])    
+                if step is not None:
+                    solution_cost, traverse_pos, step_cost = step
+                    traverse_actions.append(TraverseAction(
+                        solution_cost=solution_cost,
+                        traverse_pos=traverse_pos,
+                        step_cost=step_cost
+                    ))
+            if edge["type"] == "fragile" and agent_data["location"]!=edge["to"]:
+                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["to"])    
+                if step is not None:
+                    solution_cost, traverse_pos, step_cost = step
+                    traverse_actions.append(TraverseAction(
+                        solution_cost=solution_cost,
+                        traverse_pos=traverse_pos,
+                        step_cost=step_cost
+                    ))    
+                    
+        if len(traverse_actions) == 0:
+            self.state.agents[self.agent_idx] = agent_data
+            return self.state, "no-op"
+       
+        else:
+            minimum_cost_action = min(traverse_actions)
+            next_traverse_pos = minimum_cost_action.traverse_pos
+            action_name = self.state.perform_step(
+                current_vertex=agent_data["location"],
+                next_vertex=next_traverse_pos
+            )
+            agent_data["location"] = next_traverse_pos
+            agent_data["number_of_actions"] += 1
+
+            self.state.agents[self.agent_idx] = agent_data
+            return self.state, action_name    
+        
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]
