@@ -8,8 +8,8 @@ class TraverseAction:
         self.traverse_pos = traverse_pos
         self.step_cost = step_cost
 
-    # Here and elsewhere, if needed, break ties by preferring lower-numbered vertices in the x axis
-    # and then in the y axis.
+    # Here and elsewhere, if needed, break ties by preferring lower-numbered vertices in the x Axis
+    # and then in the y Axis.
     def __lt__(self, other):
         validation = (
             self.solution_cost < other.solution_cost or
@@ -85,27 +85,27 @@ class Agent:
 
         traverse_actions = list()
         # Find path for packages to deliver
-        if len(agent_data["packages"])>0:
+        if len(agent_data["packages"]) > 0:
             for package in agent_data["packages"]:
                 step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(
-                    solution_cost=solution_cost,
-                    traverse_pos=traverse_pos,
-                    step_cost=step_cost
-                ))
-        else:
+                        solution_cost=solution_cost,
+                        traverse_pos=traverse_pos,
+                        step_cost=step_cost
+                    ))
         # Find path for packages to collect
+        else:
             for package in self.state.placed_packages:
                 step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(
-                    solution_cost=solution_cost,
-                    traverse_pos=traverse_pos,
-                    step_cost=step_cost
-                ))
+                        solution_cost=solution_cost,
+                        traverse_pos=traverse_pos,
+                        step_cost=step_cost
+                    ))
 
         if len(traverse_actions) == 0:
             self.state.agents[self.agent_idx] = agent_data
@@ -129,9 +129,9 @@ class Agent:
         search_algorithms = SearchAlgorithms(state=self.state)
         traverse_actions = list()
         
-        #Find path a to a fragile edge
+        # Find path a to a fragile edge
         for edge in self.state.special_edges:
-            if edge["type"] == "fragile" and agent_data["location"]!=edge["from"]:
+            if edge["type"] == "fragile" and agent_data["location"] != edge["from"]:
                 step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["from"])    
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
@@ -140,7 +140,7 @@ class Agent:
                         traverse_pos=traverse_pos,
                         step_cost=step_cost
                     ))
-            if edge["type"] == "fragile" and agent_data["location"]!=edge["to"]:
+            if edge["type"] == "fragile" and agent_data["location"] != edge["to"]:
                 step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["to"])    
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
@@ -153,7 +153,6 @@ class Agent:
         if len(traverse_actions) == 0:
             self.state.agents[self.agent_idx] = agent_data
             return self.state, "no-op"
-       
         else:
             minimum_cost_action = min(traverse_actions)
             next_traverse_pos = minimum_cost_action.traverse_pos
@@ -165,8 +164,7 @@ class Agent:
             agent_data["number_of_actions"] += 1
 
             self.state.agents[self.agent_idx] = agent_data
-            return self.state, action_name    
-        
+            return self.state, action_name
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]

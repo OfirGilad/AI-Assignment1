@@ -132,7 +132,13 @@ class State:
         if self.is_path_available(current_vertex=current_vertex, next_vertex=next_vertex):
             # Break fragile edges
             for edge_idx, edge in enumerate(self.special_edges):
-                if ((edge["from"] == current_vertex and edge["to"] == next_vertex ) or (edge["from"] == next_vertex and edge["to"] == current_vertex) ) and edge["type"] == "fragile":
+                fragile_edge_step_validation = (
+                    edge["type"] == "fragile" and (
+                        (edge["from"] == current_vertex and edge["to"] == next_vertex) or
+                        (edge["from"] == next_vertex and edge["to"] == current_vertex)
+                    )
+                )
+                if fragile_edge_step_validation:
                     self.special_edges[edge_idx]["type"] = "always blocked"
 
             # Return Action Name

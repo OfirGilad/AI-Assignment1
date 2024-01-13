@@ -30,7 +30,7 @@ class Simulator:
 
     def run(self):
         agent_idx = 0
-        print("Cycle 0:")
+        print("# Cycle 0:")
         while True:
             # Check if goal achieved
             if self._goal_achieved():
@@ -53,4 +53,4 @@ class Simulator:
             if agent_idx == 0:
                 self.no_op_count = 0
                 self.current_state.time += 1
-                print(f"Cycle {self.current_state.time}")
+                print(f"# Cycle {self.current_state.time}:")
