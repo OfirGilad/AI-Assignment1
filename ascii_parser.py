@@ -16,7 +16,10 @@ class Parser:
             "#F": self._handle_f,
             "#A": self._handle_a,
             "#H": self._handle_h,
-            "#I": self._handle_i
+            "#I": self._handle_i,
+            "#A1": self._handle_a1,
+            "#A2": self._handle_a2,
+            "#A3": self._handle_a3,
         }
 
     def _handle_x(self, line_data_args):
@@ -75,6 +78,36 @@ class Parser:
         agent = {
             "type": "Interfering",
             "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "number_of_actions": 0
+        }
+        self.parsed_data["agents"].append(agent)
+
+    def _handle_a1(self, line_data_args):
+        agent = {
+            "type": "Greedy",
+            "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "score": 0,
+            "packages": list(),
+            "number_of_actions": 0
+        }
+        self.parsed_data["agents"].append(agent)
+
+    def _handle_a2(self, line_data_args):
+        agent = {
+            "type": "A Star",
+            "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "score": 0,
+            "packages": list(),
+            "number_of_actions": 0
+        }
+        self.parsed_data["agents"].append(agent)
+
+    def _handle_a3(self, line_data_args):
+        agent = {
+            "type": "Real time A Star",
+            "location": [int(line_data_args[1]), int(line_data_args[2])],
+            "score": 0,
+            "packages": list(),
             "number_of_actions": 0
         }
         self.parsed_data["agents"].append(agent)

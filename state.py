@@ -2,13 +2,13 @@ import numpy as np
 
 
 class State:
-    def __init__(self, state_data: dict):
+    def __init__(self, environment_data: dict):
         # Parse state initial parameters
-        self.X = state_data["x"] + 1
-        self.Y = state_data["y"] + 1
-        self.packages = state_data.get("packages", list())
-        self.special_edges = state_data.get("special_edges", list())
-        self.agents = state_data.get("agents", list())
+        self.X = environment_data["x"] + 1
+        self.Y = environment_data["y"] + 1
+        self.packages = environment_data.get("packages", list())
+        self.special_edges = environment_data.get("special_edges", list())
+        self.agents = environment_data.get("agents", list())
 
         # Build state graph
         self.total_vertices = self.X * self.Y
@@ -16,10 +16,10 @@ class State:
         self._build_adjacency_matrix()
 
         # Parse state additional parameters
-        self.time = state_data.get("time", 0)
-        self.placed_packages = state_data.get("placed_packages", list())
-        self.picked_packages = state_data.get("picked_packages", list())
-        self.archived_packages = state_data.get("archived_packages", list())
+        self.time = environment_data.get("time", 0)
+        self.placed_packages = environment_data.get("placed_packages", list())
+        self.picked_packages = environment_data.get("picked_packages", list())
+        self.archived_packages = environment_data.get("archived_packages", list())
         self._update_packages_info()
 
     def coordinates_to_vertex_index(self, coords):
@@ -223,7 +223,7 @@ class State:
         print(print_data)
 
     def clone_state(self):
-        state_data = {
+        environment_data = {
             "x": self.X - 1,
             "y": self.Y - 1,
             "packages": self.packages,
@@ -233,4 +233,4 @@ class State:
             "placed_packages": self.placed_packages,
             "picked_packages": self.picked_packages
         }
-        return State(state_data=state_data)
+        return State(environment_data=environment_data)

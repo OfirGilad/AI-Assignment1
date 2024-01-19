@@ -1,5 +1,6 @@
 from state import State
 from search_algorithms import SearchAlgorithms
+from node import Node
 
 
 class TraverseAction:
@@ -40,7 +41,10 @@ class Agent:
         self.agent_action = {
             "Human": self.human_action,
             "Normal": self.stupid_greedy_action,
-            "Interfering": self.saboteur_action
+            "Interfering": self.saboteur_action,
+            "Greedy": self.greedy_search_action,
+            "A Star": self.a_star_action,
+            "Real time A Star": self.real_time_a_star_action
         }
 
     def human_action(self):
@@ -165,6 +169,21 @@ class Agent:
 
             self.state.agents[self.agent_idx] = agent_data
             return self.state, action_name
+
+    def greedy_search_action(self):
+        agent_data = self.state.agents[self.agent_idx]
+        node = Node(agent_idx=self.agent_idx, state=self.state)
+        return self.state, "no-op"
+
+    def a_star_action(self):
+        agent_data = self.state.agents[self.agent_idx]
+        node = Node(agent_idx=self.agent_idx, state=self.state)
+        return self.state, "no-op"
+
+    def real_time_a_star_action(self):
+        agent_data = self.state.agents[self.agent_idx]
+        node = Node(agent_idx=self.agent_idx, state=self.state)
+        return self.state, "no-op"
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]

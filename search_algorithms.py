@@ -84,7 +84,7 @@ class SearchAlgorithms:
 
 
 def test_dijkstra():
-    parsed_data = {
+    environment_data = {
         "x": 2,
         "y": 2,
         "special_edges": [
@@ -95,7 +95,7 @@ def test_dijkstra():
             # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
         ]
     }
-    state = State(state_data=parsed_data)
+    state = State(environment_data=environment_data)
     # print(graph.adjacency_matrix)
     search_algorithms = SearchAlgorithms(state=state)
     sol = search_algorithms.dijkstra_step(src=[0, 0], dest=[2, 2])
