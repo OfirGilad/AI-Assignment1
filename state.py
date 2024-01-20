@@ -16,6 +16,7 @@ class State:
         self._build_adjacency_matrix()
 
         # Parse state additional parameters
+        self.agent_idx = environment_data.get("agent_idx", 0)
         self.time = environment_data.get("time", 0)
         self.placed_packages = environment_data.get("placed_packages", list())
         self.picked_packages = environment_data.get("picked_packages", list())
@@ -96,7 +97,31 @@ class State:
                         if package["package_id"] == agent_package["package_id"]:
                             self.agents[agent_idx]["packages"].remove(agent_package)
 
-    def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
+    def update_agent_packages_status(self):
+        agent_data = self.agents[self.agent_idx]
+        current_placed_packages = self.placed_packages
+        for package in current_placed_packages:
+            if package["package_at"] == agent_data["location"]:
+                package["status"] = "picked"
+                package["holder_agent_id"] = self.agent_idx
+
+                agent_data["packages"].append(package)
+                self.placed_packages.remove(package)
+                self.picked_packages.append(package)
+
+        current_pickup_packages = self.picked_packages
+        for package in current_pickup_packages:
+            if package["deliver_to"] == agent_data["location"]:
+                package["status"] = "delivered"
+                agent_data["score"] += 1
+
+                agent_data["packages"].remove(package)
+                self.picked_packages.remove(package)
+                self.archived_packages.append(package)
+
+        self.agents[self.agent_idx] = agent_data
+
+    def _convert_to_node_indices(self, current_vertex, next_vertex, mode="Coords"):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
@@ -108,6 +133,15 @@ class State:
         # Encountered invalid mode
         else:
             raise ValueError(f"Invalid mode: {mode}")
+
+        return current_vertex_index, next_vertex_index
+
+    def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
+        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
+            current_vertex=current_vertex,
+            next_vertex=next_vertex,
+            mode=mode
+        )
 
         # Check if next vertex is occupied
         for agent in self.agents:
@@ -128,7 +162,7 @@ class State:
         # All validation passed
         return True
 
-    def perform_step(self, current_vertex: list, next_vertex: list):
+    def perform_agent_step(self, current_vertex: list, next_vertex: list):
         if self.is_path_available(current_vertex=current_vertex, next_vertex=next_vertex):
             # Break fragile edges
             for edge_idx, edge in enumerate(self.special_edges):
@@ -141,12 +175,18 @@ class State:
                 if fragile_edge_step_validation:
                     self.special_edges[edge_idx]["type"] = "always blocked"
 
+            # Update agent data
+            agent_data = self.agents[self.agent_idx]
+            agent_data["location"] = next_vertex
+            agent_data["number_of_actions"] += 1
+            self.agents[self.agent_idx] = agent_data
+
             # Return Action Name
             if current_vertex[0] > next_vertex[0] and current_vertex[1] == next_vertex[1]:
                 return "Up"
             elif current_vertex[0] < next_vertex[0] and current_vertex[1] == next_vertex[1]:
                 return "Down"
-            elif current_vertex[0] == next_vertex[0] and current_vertex[1] < next_vertex[1]:
+            elif current_vertex[0] == next_vertex[0] and current_vertex[1] > next_vertex[1]:
                 return "Left"
             else:
                 return "Right"
@@ -163,23 +203,24 @@ class State:
         # Packages
         all_packages = self.packages + self.placed_packages + self.picked_packages + self.archived_packages
         all_packages.sort(key=lambda p: p["package_id"])
-        for package_idx, package in enumerate(all_packages):
+        for package in all_packages:
+            package_id = package["package_id"]
             if package["status"] == "waiting":
                 p_time = package['from_time']
-                print_data += f"#P 0  T {p_time} ; Package {package_idx}: waiting to appear, At time: {p_time}\n"
+                print_data += f"#P 0  T {p_time} ; Package {package_id}: waiting to appear, At time: {p_time}\n"
             elif package["status"] == "placed":
                 p_x = package["package_at"][0]
                 p_y = package["package_at"][1]
-                print_data += f"#P 1  L {p_x} {p_y} ; Package {package_idx}: placed, On location: ({p_x},{p_y})\n"
+                print_data += f"#P 1  L {p_x} {p_y} ; Package {package_id}: placed, On location: ({p_x},{p_y})\n"
             elif package["status"] == "picked":
                 p_agent_id = package["holder_agent_id"]
-                print_data += f"#P 2  A {p_agent_id} ; Package {package_idx}: picked, By agent: {p_agent_id}\n"
+                print_data += f"#P 2  A {p_agent_id} ; Package {package_id}: picked, By agent: {p_agent_id}\n"
             elif package["status"] == "delivered":
                 p_agent_id = package["holder_agent_id"]
-                print_data += f"#P 3  A {p_agent_id} ; Package {package_idx}: delivered, By agent {p_agent_id}\n"
+                print_data += f"#P 3  A {p_agent_id} ; Package {package_id}: delivered, By agent {p_agent_id}\n"
             elif package["status"] == "disappeared":
                 p_time = package["before_time"]
-                print_data += f"#P 4  T {p_time} ; Package {package_idx}: disappeared, At time {p_time}\n"
+                print_data += f"#P 4  T {p_time} ; Package {package_id}: disappeared, At time {p_time}\n"
             else:
                 raise ValueError("Invalid package status")
 
@@ -222,15 +263,26 @@ class State:
         print_data += f"#T {self.time} ; Total Time unit passed: {self.time}"
         print(print_data)
 
-    def clone_state(self):
+    def clone_state(self, agent_idx: int, time_factor: int = 0):
         environment_data = {
             "x": self.X - 1,
             "y": self.Y - 1,
             "packages": self.packages,
             "special_edges": self.special_edges,
             "agents": self.agents,
-            "time": self.time,
+            "agent_idx": agent_idx,
+            "time": self.time + time_factor,
             "placed_packages": self.placed_packages,
-            "picked_packages": self.picked_packages
+            "picked_packages": self.picked_packages,
+            "archived_packages": self.archived_packages
         }
         return State(environment_data=environment_data)
+
+    def edge_cost(self, current_vertex, next_vertex, mode="Coords"):
+        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
+            current_vertex=current_vertex,
+            next_vertex=next_vertex,
+            mode=mode
+        )
+
+        return self.adjacency_matrix[current_vertex_index, next_vertex_index]

@@ -35,9 +35,9 @@ class TraverseAction:
 
 
 class Agent:
-    def __init__(self, agent_idx: int, state: State):
-        self.agent_idx = agent_idx
+    def __init__(self, state: State):
         self.state = state
+        self.agent_idx = state.agent_idx
         self.agent_action = {
             "Human": self.human_action,
             "Normal": self.stupid_greedy_action,
@@ -59,33 +59,12 @@ class Agent:
 
         return self.state, "no-op"
 
-    def _update_packages_status(self, agent_data):
-        current_placed_packages = self.state.placed_packages
-        for package in current_placed_packages:
-            if package["package_at"] == agent_data["location"]:
-                agent_data["packages"].append(package)
-                self.state.placed_packages.remove(package)
-                package["status"] = "picked"
-                package["holder_agent_id"] = self.agent_idx
-                self.state.picked_packages.append(package)
-
-        current_pickup_packages = self.state.picked_packages
-        for package in current_pickup_packages:
-            if package["deliver_to"] == agent_data["location"]:
-                agent_data["packages"].remove(package)
-                agent_data["score"] += 1
-                self.state.picked_packages.remove(package)
-                package["status"] = "delivered"
-                self.state.archived_packages.append(package)
-
-        return agent_data
-
     def stupid_greedy_action(self):
+        # Update agent picked and delivered packages
+        self.state.update_agent_packages_status()
+
         agent_data = self.state.agents[self.agent_idx]
         search_algorithms = SearchAlgorithms(state=self.state)
-
-        # Update agent picked and delivered packages
-        agent_data = self._update_packages_status(agent_data=agent_data)
 
         traverse_actions = list()
         # Find path for packages to deliver
@@ -112,20 +91,15 @@ class Agent:
                     ))
 
         if len(traverse_actions) == 0:
-            self.state.agents[self.agent_idx] = agent_data
             return self.state, "no-op"
         else:
             minimum_cost_action = min(traverse_actions)
             next_traverse_pos = minimum_cost_action.traverse_pos
-            action_name = self.state.perform_step(
+            action_name = self.state.perform_agent_step(
                 current_vertex=agent_data["location"],
                 next_vertex=next_traverse_pos
             )
-            agent_data["location"] = next_traverse_pos
-            agent_data["number_of_actions"] += 1
-            agent_data = self._update_packages_status(agent_data=agent_data)
-
-            self.state.agents[self.agent_idx] = agent_data
+            self.state.update_agent_packages_status()
             return self.state, action_name
 
     def saboteur_action(self):
@@ -155,34 +129,26 @@ class Agent:
                     ))    
                     
         if len(traverse_actions) == 0:
-            self.state.agents[self.agent_idx] = agent_data
             return self.state, "no-op"
         else:
             minimum_cost_action = min(traverse_actions)
             next_traverse_pos = minimum_cost_action.traverse_pos
-            action_name = self.state.perform_step(
+            action_name = self.state.perform_agent_step(
                 current_vertex=agent_data["location"],
                 next_vertex=next_traverse_pos
             )
-            agent_data["location"] = next_traverse_pos
-            agent_data["number_of_actions"] += 1
-
-            self.state.agents[self.agent_idx] = agent_data
             return self.state, action_name
 
     def greedy_search_action(self):
-        agent_data = self.state.agents[self.agent_idx]
-        node = Node(agent_idx=self.agent_idx, state=self.state)
+        node = Node(state=self.state)
         return self.state, "no-op"
 
     def a_star_action(self):
-        agent_data = self.state.agents[self.agent_idx]
-        node = Node(agent_idx=self.agent_idx, state=self.state)
+        node = Node(state=self.state)
         return self.state, "no-op"
 
     def real_time_a_star_action(self):
-        agent_data = self.state.agents[self.agent_idx]
-        node = Node(agent_idx=self.agent_idx, state=self.state)
+        node = Node(state=self.state)
         return self.state, "no-op"
 
     def perform_action(self):

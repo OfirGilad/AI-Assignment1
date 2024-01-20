@@ -21,9 +21,13 @@ class Simulator:
         )
         if goal1_validation:
             print("Goal achieved: All available packages have been delivered")
+            print(f"Final State:")
+            self.current_state.print_state()
             return True
         elif goal2_validation:
             print("Goal achieved: There is no path for any agent to pick up or deliver any more packages on time")
+            print(f"Final State:")
+            self.current_state.print_state()
             return True
         else:
             return False
@@ -37,8 +41,8 @@ class Simulator:
                 break
 
             # Perform Agent Action
-            self.current_state = self.current_state.clone_state()
-            current_agent = Agent(agent_idx=agent_idx, state=self.current_state)
+            self.current_state = self.current_state.clone_state(agent_idx=agent_idx)
+            current_agent = Agent(state=self.current_state)
             self.current_state, action = current_agent.perform_action()
             self.states.append(self.current_state)
 
