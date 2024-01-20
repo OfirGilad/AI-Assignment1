@@ -42,15 +42,24 @@ class SearchAlgorithms:
                 break
 
             # Update the distance array based on the current node
-            for neighbor in range(total_vertices):
+            for neighbor_node in range(total_vertices):
                 path_validation = (
-                    not visited[neighbor] and
-                    self.state.is_path_available(current_vertex=current_node, next_vertex=neighbor, mode="Indices")
+                    not visited[neighbor_node] and
+                    self.state.is_path_available(
+                        current_vertex=current_node,
+                        next_vertex=neighbor_node,
+                        mode="Indices"
+                    )
                 )
                 if path_validation:
-                    new_distance = distances[current_node] + self.state.adjacency_matrix[current_node, neighbor]
-                    neighbor_distance = float(distances[neighbor])
-                    distances[neighbor] = min(neighbor_distance, new_distance)
+                    edge_cost = self.state.edge_cost(
+                        current_vertex=current_node,
+                        next_vertex=neighbor_node,
+                        mode="Indices"
+                    )
+                    new_distance = distances[current_node] + edge_cost
+                    neighbor_distance = float(distances[neighbor_node])
+                    distances[neighbor_node] = min(neighbor_distance, new_distance)
 
         # Check if no path exists from src to dest
         if distances[dest_node_index] == np.inf:

@@ -23,14 +23,14 @@ class State:
         self.archived_packages = environment_data.get("archived_packages", list())
         self._update_packages_info()
 
-    def coordinates_to_vertex_index(self, coords):
+    def coordinates_to_vertex_index(self, coords: list) -> int:
         row, col = coords
         if row < 0 or row >= self.X or col < 0 or col >= self.Y:
             raise ValueError("Coordinates out of bounds")
 
         return row * self.Y + col
 
-    def vertex_index_to_coordinates(self, idx):
+    def vertex_index_to_coordinates(self, idx: int) -> list:
         if idx < 0 or idx > self.total_vertices:
             raise ValueError("Vertex index out of bounds")
 
@@ -121,7 +121,7 @@ class State:
 
         self.agents[self.agent_idx] = agent_data
 
-    def _convert_to_node_indices(self, current_vertex, next_vertex, mode="Coords"):
+    def _convert_to_node_indices(self, current_vertex, next_vertex, mode):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
@@ -136,7 +136,22 @@ class State:
 
         return current_vertex_index, next_vertex_index
 
-    def is_path_available(self, current_vertex, next_vertex, mode="Coords"):
+    def _convert_to_node_coords(self, current_vertex, next_vertex, mode):
+        # The input vertices are list of coordinates
+        if mode == "Coords":
+            current_vertex_coords = current_vertex
+            next_vertex_coords = next_vertex
+        # The input vertices are indices of the vertices on the graph
+        elif mode == "Indices":
+            current_vertex_coords = self.vertex_index_to_coordinates(idx=current_vertex)
+            next_vertex_coords = self.vertex_index_to_coordinates(idx=next_vertex)
+        # Encountered invalid mode
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
+
+        return current_vertex_coords, next_vertex_coords
+
+    def is_path_available(self, current_vertex, next_vertex, mode):
         current_vertex_index, next_vertex_index = self._convert_to_node_indices(
             current_vertex=current_vertex,
             next_vertex=next_vertex,
@@ -162,8 +177,22 @@ class State:
         # All validation passed
         return True
 
-    def perform_agent_step(self, current_vertex: list, next_vertex: list):
-        if self.is_path_available(current_vertex=current_vertex, next_vertex=next_vertex):
+    def edge_cost(self, current_vertex, next_vertex, mode="Coords"):
+        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
+            current_vertex=current_vertex,
+            next_vertex=next_vertex,
+            mode=mode
+        )
+
+        return self.adjacency_matrix[current_vertex_index, next_vertex_index]
+
+    def perform_agent_step(self, current_vertex, next_vertex, mode):
+        current_vertex, next_vertex = self._convert_to_node_coords(
+            current_vertex=current_vertex,
+            next_vertex=next_vertex,
+            mode=mode
+        )
+        if self.is_path_available(current_vertex=current_vertex, next_vertex=next_vertex, mode="Coords"):
             # Break fragile edges
             for edge_idx, edge in enumerate(self.special_edges):
                 fragile_edge_step_validation = (
@@ -277,12 +306,3 @@ class State:
             "archived_packages": self.archived_packages
         }
         return State(environment_data=environment_data)
-
-    def edge_cost(self, current_vertex, next_vertex, mode="Coords"):
-        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
-            current_vertex=current_vertex,
-            next_vertex=next_vertex,
-            mode=mode
-        )
-
-        return self.adjacency_matrix[current_vertex_index, next_vertex_index]

@@ -30,10 +30,14 @@ class Node:
         node_location = self.state.agents[self.agent_idx]["location"]
         for move in possible_moves:
             new_location = [node_location[0] + move[0], node_location[1] + move[1]]
-            if self.state.is_path_available(current_vertex=node_location, next_vertex=new_location):
+            if self.state.is_path_available(current_vertex=node_location, next_vertex=new_location, mode="Coords"):
                 # Create new node with time passed by 1
                 node_state = self.state.clone_state(agent_idx=self.agent_idx, time_factor=1)
-                action = node_state.perform_agent_step(current_vertex=node_location, next_vertex=new_location)
+                action = node_state.perform_agent_step(
+                    current_vertex=node_location,
+                    next_vertex=new_location,
+                    mode="Coords"
+                )
                 self.state.update_agent_packages_status()
 
                 child = Node(

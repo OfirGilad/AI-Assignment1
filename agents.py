@@ -97,7 +97,8 @@ class Agent:
             next_traverse_pos = minimum_cost_action.traverse_pos
             action_name = self.state.perform_agent_step(
                 current_vertex=agent_data["location"],
-                next_vertex=next_traverse_pos
+                next_vertex=next_traverse_pos,
+                mode="Coords"
             )
             self.state.update_agent_packages_status()
             return self.state, action_name
@@ -135,7 +136,8 @@ class Agent:
             next_traverse_pos = minimum_cost_action.traverse_pos
             action_name = self.state.perform_agent_step(
                 current_vertex=agent_data["location"],
-                next_vertex=next_traverse_pos
+                next_vertex=next_traverse_pos,
+                mode="Coords"
             )
             return self.state, action_name
 
