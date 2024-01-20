@@ -6,10 +6,13 @@ class SearchAlgorithms:
     def __init__(self, state: State):
         self.state = state
 
-    def dijkstra(self, src: list, dest: list):
-        # convert coordinates to node indices
-        src_node_index = self.state.coordinates_to_vertex_index(coords=src)
-        dest_node_index = self.state.coordinates_to_vertex_index(coords=dest)
+    def dijkstra(self, src, dest, mode):
+        # convert to node indices
+        src_node_index, dest_node_index = self.state.convert_to_node_indices(
+            current_vertex=src,
+            next_vertex=dest,
+            mode=mode
+        )
 
         # Initialize distance array with infinity for all nodes except the source node
         total_vertices = self.state.total_vertices
@@ -80,8 +83,8 @@ class SearchAlgorithms:
 
         return distances[dest_node_index], solution_path, distances
 
-    def dijkstra_step(self,  src: list, dest: list):
-        solution_cost, solution_path, distances = self.dijkstra(src=src, dest=dest)
+    def dijkstra_step(self, src, dest, mode):
+        solution_cost, solution_path, distances = self.dijkstra(src=src, dest=dest, mode=mode)
 
         if solution_path is not None:
             next_vertex_index = solution_path[1]
@@ -99,15 +102,15 @@ def test_dijkstra():
         "special_edges": [
             {"type": "always blocked", "from": [0, 0], "to": [0, 1]},
             {"type": "always blocked", "from": [1, 0], "to": [1, 1]},
-            {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
-            {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
+            # {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
+            # {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
             # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
         ]
     }
     state = State(environment_data=environment_data)
     # print(graph.adjacency_matrix)
     search_algorithms = SearchAlgorithms(state=state)
-    sol = search_algorithms.dijkstra_step(src=[0, 0], dest=[2, 2])
+    sol = search_algorithms.dijkstra_step(src=[0, 0], dest=[2, 2], mode="Coords")
     print(f"Step Solution: {sol}")
 
 

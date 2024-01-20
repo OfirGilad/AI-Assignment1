@@ -70,7 +70,11 @@ class Agent:
         # Find path for packages to deliver
         if len(agent_data["packages"]) > 0:
             for package in agent_data["packages"]:
-                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["deliver_to"])
+                step = search_algorithms.dijkstra_step(
+                    src=agent_data["location"],
+                    dest=package["deliver_to"],
+                    mode="Coords"
+                )
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(
@@ -81,7 +85,11 @@ class Agent:
         # Find path for packages to collect
         else:
             for package in self.state.placed_packages:
-                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=package["package_at"])
+                step = search_algorithms.dijkstra_step(
+                    src=agent_data["location"],
+                    dest=package["package_at"],
+                    mode="Coords"
+                )
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(
@@ -111,7 +119,11 @@ class Agent:
         # Find path a to a fragile edge
         for edge in self.state.special_edges:
             if edge["type"] == "fragile" and agent_data["location"] != edge["from"]:
-                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["from"])    
+                step = search_algorithms.dijkstra_step(
+                    src=agent_data["location"],
+                    dest=edge["from"],
+                    mode="Coords"
+                )
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(
@@ -120,7 +132,11 @@ class Agent:
                         step_cost=step_cost
                     ))
             if edge["type"] == "fragile" and agent_data["location"] != edge["to"]:
-                step = search_algorithms.dijkstra_step(src=agent_data["location"], dest=edge["to"])    
+                step = search_algorithms.dijkstra_step(
+                    src=agent_data["location"],
+                    dest=edge["to"],
+                    mode="Coords"
+                )
                 if step is not None:
                     solution_cost, traverse_pos, step_cost = step
                     traverse_actions.append(TraverseAction(

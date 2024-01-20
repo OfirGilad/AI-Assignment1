@@ -74,22 +74,28 @@ class State:
         for package in current_packages:
             if package["from_time"] <= self.time:
                 self.packages.remove(package)
+
                 package["status"] = "placed"
+
                 self.placed_packages.append(package)
 
         current_placed_packages = self.placed_packages
         for package in current_placed_packages:
             if package["before_time"] <= self.time:
                 self.placed_packages.remove(package)
+
                 package["status"] = "disappeared"
+
                 self.archived_packages.append(package)
 
         current_picked_packages = self.picked_packages
         for package in current_picked_packages:
             if package["before_time"] <= self.time:
                 self.picked_packages.remove(package)
+
                 package["status"] = "disappeared"
                 package["holder_agent_id"] = -1
+
                 self.archived_packages.append(package)
 
                 for agent_idx, agent in enumerate(self.agents):
@@ -102,26 +108,28 @@ class State:
         current_placed_packages = self.placed_packages
         for package in current_placed_packages:
             if package["package_at"] == agent_data["location"]:
+                self.placed_packages.remove(package)
+
                 package["status"] = "picked"
                 package["holder_agent_id"] = self.agent_idx
 
                 agent_data["packages"].append(package)
-                self.placed_packages.remove(package)
                 self.picked_packages.append(package)
 
         current_pickup_packages = self.picked_packages
         for package in current_pickup_packages:
             if package["deliver_to"] == agent_data["location"]:
+                agent_data["packages"].remove(package)
+                self.picked_packages.remove(package)
+
                 package["status"] = "delivered"
                 agent_data["score"] += 1
 
-                agent_data["packages"].remove(package)
-                self.picked_packages.remove(package)
                 self.archived_packages.append(package)
 
         self.agents[self.agent_idx] = agent_data
 
-    def _convert_to_node_indices(self, current_vertex, next_vertex, mode):
+    def convert_to_node_indices(self, current_vertex, next_vertex, mode):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
@@ -132,11 +140,11 @@ class State:
             next_vertex_index = next_vertex
         # Encountered invalid mode
         else:
-            raise ValueError(f"Invalid mode: {mode}")
+            raise ValueError(f"Invalid mode: {mode}. Current available modes are: Coords, Indices")
 
         return current_vertex_index, next_vertex_index
 
-    def _convert_to_node_coords(self, current_vertex, next_vertex, mode):
+    def convert_to_node_coords(self, current_vertex, next_vertex, mode):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_coords = current_vertex
@@ -152,7 +160,7 @@ class State:
         return current_vertex_coords, next_vertex_coords
 
     def is_path_available(self, current_vertex, next_vertex, mode):
-        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
+        current_vertex_index, next_vertex_index = self.convert_to_node_indices(
             current_vertex=current_vertex,
             next_vertex=next_vertex,
             mode=mode
@@ -178,7 +186,7 @@ class State:
         return True
 
     def edge_cost(self, current_vertex, next_vertex, mode="Coords"):
-        current_vertex_index, next_vertex_index = self._convert_to_node_indices(
+        current_vertex_index, next_vertex_index = self.convert_to_node_indices(
             current_vertex=current_vertex,
             next_vertex=next_vertex,
             mode=mode
@@ -187,7 +195,7 @@ class State:
         return self.adjacency_matrix[current_vertex_index, next_vertex_index]
 
     def perform_agent_step(self, current_vertex, next_vertex, mode):
-        current_vertex, next_vertex = self._convert_to_node_coords(
+        current_vertex, next_vertex = self.convert_to_node_coords(
             current_vertex=current_vertex,
             next_vertex=next_vertex,
             mode=mode
