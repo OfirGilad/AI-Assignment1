@@ -24,7 +24,7 @@ class InformedSearchAlgorithms:
             self.NumOfExpansions += 1
             # Assume a global constant of LIMIT expansions (default 10000).
             # If more than LIMIT expansions are done we just return "fail", and the agent does just the "no-op" action.
-            if self.NumOfExpansions > LIMIT and self.IsLimited == True:
+            if self.NumOfExpansions > LIMIT and self.IsLimited:
                 return "fail"
             
             # A* = > Check if goal state = current node's state
@@ -33,14 +33,14 @@ class InformedSearchAlgorithms:
                 # One of the condition is met => return move decision
                 if current_node.get_parent() is None:
                     # If the last node is the root node
-                    return current_node.state, current_node.get_action()
+                    return current_node.get_action()
                 temp_node = current_node
                 action = current_node.get_action()
                 while temp_node.get_parent().get_parent() is not None:
                     temp_node = temp_node.get_parent()
                     action = temp_node.get_action()
 
-                return temp_node.state, action
+                return action
           
             # Node does not contain a goal state - handle its children prior to next expansion.
             children = current_node.get_children()

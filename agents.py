@@ -159,33 +159,55 @@ class Agent:
             return self.state, action_name
 
     def greedy_search_action(self):
+        self.state.update_agent_packages_status()
         node = Node(state=self.state)
         node.expand()
-        best_node = min(node.get_children(), key=lambda child_node: child_node.h_value())
-        best_node.state.time -= 1
-        return best_node.state, best_node.get_action()
+        if len(node.get_action()) != 0:
+            best_node = min(node.get_children(), key=lambda child_node: child_node.h_value())
+            action = best_node.get_action()
+            agent_location = self.state.agents[self.agent_idx]["location"]
+            self.state.perform_agent_action(current_vertex=agent_location, action=action, mode="Coords")
+            self.state.update_agent_packages_status()
+        else:
+            action = "no-op"
+        return self.state, action
 
     def a_star_action(self):
+        # Update state
+        self.state.update_agent_packages_status()
         node = Node(state=self.state)
-        a_star = InformedSearchAlgorithms(initial_node=node, is_limited=True)
-        a_star_res = a_star.A_star()
+
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True)
+        a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
-            state, action = a_star_res
-            if action != "no-op":
-                state.time -= 1
-            return state, action
-        return self.state, "no-op"
+            action = a_star_res
+        else:
+            action = "no-op"
+
+        if action != "no-op":
+            agent_location = self.state.agents[self.agent_idx]["location"]
+            self.state.perform_agent_action(current_vertex=agent_location, action=action, mode="Coords")
+            self.state.update_agent_packages_status()
+
+        return self.state, action
 
     def real_time_a_star_action(self):
+        # Update state
+        self.state.update_agent_packages_status()
         node = Node(state=self.state)
-        a_star = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10)
-        a_star_res = a_star.A_star()
+
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10)
+        a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
-            state, action = a_star_res
-            if action != "no-op":
-                state.time -= 1
-            return state, action
-        return self.state, "no-op"
+            action = a_star_res
+        else:
+            action = "no-op"
+
+        if action != "no-op":
+            agent_location = self.state.agents[self.agent_idx]["location"]
+            self.state.perform_agent_action(current_vertex=agent_location, action=action, mode="Coords")
+            self.state.update_agent_packages_status()
+        return self.state, a_star_res
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]
@@ -194,7 +216,6 @@ class Agent:
 
 
 def test_agents():
-    
     environment_data = {
         "x": 2,
         "y": 2,

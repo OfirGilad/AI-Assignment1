@@ -59,5 +59,6 @@ class Simulator:
             agent_idx = (agent_idx + 1) % len(self.current_state.agents)
             if agent_idx == 0:
                 self.no_op_count = 0
-                self.current_state.time += 1
+                self.current_state = self.current_state.clone_state(agent_idx=agent_idx, time_factor=1)
+                self.current_state.update_packages_info()
                 print(f"# Cycle {self.current_state.time}:")

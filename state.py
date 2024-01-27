@@ -22,7 +22,7 @@ class State:
         self.placed_packages = environment_data.get("placed_packages", list())
         self.picked_packages = environment_data.get("picked_packages", list())
         self.archived_packages = environment_data.get("archived_packages", list())
-        self._update_packages_info()
+        self.update_packages_info()
 
     def coordinates_to_vertex_index(self, coords: list) -> int:
         row, col = coords
@@ -70,7 +70,7 @@ class State:
 
         self._apply_special_edges()
 
-    def _update_packages_info(self):
+    def update_packages_info(self):
         current_packages = self.packages
         for package in current_packages:
             if package["from_time"] <= self.time:
@@ -130,7 +130,7 @@ class State:
 
         self.agents[self.agent_idx] = agent_data
 
-    def convert_to_node_indices(self, current_vertex, next_vertex, mode):
+    def convert_to_node_indices(self, current_vertex, next_vertex, mode: str):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
@@ -146,7 +146,7 @@ class State:
 
         return current_vertex_index, next_vertex_index
 
-    def convert_to_node_coords(self, current_vertex, next_vertex, mode):
+    def convert_to_node_coords(self, current_vertex, next_vertex, mode: str):
         # The input vertices are list of coordinates
         if mode == "Coords":
             current_vertex_coords = current_vertex
@@ -233,6 +233,20 @@ class State:
         else:
             raise ValueError("Invalid step was performed")
 
+    def perform_agent_action(self, current_vertex, action: str, mode: str):
+        if action == "Up":
+            next_vertex = [current_vertex[0] - 1, current_vertex[1]]
+        elif action == "Down":
+            next_vertex = [current_vertex[0] + 1, current_vertex[1]]
+        elif action == "Left":
+            next_vertex = [current_vertex[0], current_vertex[1] - 1]
+        elif action == "Right":
+            next_vertex = [current_vertex[0], current_vertex[1] + 1]
+        else:
+            raise ValueError(f"Invalid action: {action}")
+
+        self.perform_agent_step(current_vertex, next_vertex, mode=mode)
+
     def print_state(self):
         # Coordinates
         print_data = (
@@ -281,7 +295,7 @@ class State:
                 a_score = agent["score"]
                 a_actions = agent["number_of_actions"]
                 print_data += (
-                    f"#A 1  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
+                    f"#A 1  L ({a_location[0]},{a_location[1]})  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: Normal agent, "
                     f"Location: {a_location[0]} {a_location[1]}, "
                     f"Number of actions: {a_actions}, "
@@ -293,7 +307,7 @@ class State:
                 print_data += (
                     f"#A 2  A {a_actions} ; "
                     f"Agent {agent_idx}: Interfering Agent, "
-                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Location: ({a_location[0]},{a_location[1]}), "
                     f"Number of Actions: {a_actions}\n"
                 )
             elif agent["type"] == "Greedy":
@@ -303,7 +317,7 @@ class State:
                 print_data += (
                     f"#A 3  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: Greedy agent, "
-                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Location: ({a_location[0]},{a_location[1]}), "
                     f"Number of actions: {a_actions}, "
                     f"Score: {a_score}\n"
                 )
@@ -314,7 +328,7 @@ class State:
                 print_data += (
                     f"#A 4  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: A Star agent, "
-                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Location: ({a_location[0]},{a_location[1]}), "
                     f"Number of actions: {a_actions}, "
                     f"Score: {a_score}\n"
                 )
