@@ -12,19 +12,20 @@ class Node:
         self.agent_idx = state.agent_idx
         self.parent = parent
         self.children = list()
+
         self.action = action
         self.depth = 0
         self.path_cost = 0
         self.heuristic_value = 0
         self.search_adjacency_matrix = None
         self.search_adjacency_matrix_mst = None
+
         self._calculate_heuristic_value()
         self.total_cost = self.heuristic_value
         self._read_parent_data()
-        print(self.heuristic_value,self.path_cost)
+
         self.isInOpenList = False
         self.indexInOpenList = -1
-        
         
     def _calculate_action_cost(self):
         parent_location = self.parent.state.agents[self.agent_idx]["location"]
@@ -84,16 +85,17 @@ class Node:
 
         # Calculate the heuristic value as the sum of the minimum spanning tree edges
         self.heuristic_value = int(np.sum(self.search_adjacency_matrix_mst))
-     
-        
+
     ########### In the future => Reduce time by 1 since the simulator updates time  ###############
     def expand(self):
         possible_moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         node_location = self.state.agents[self.agent_idx]["location"]
         for move in possible_moves:
             new_location = [node_location[0] + move[0], node_location[1] + move[1]]
+
+            # Validate if the new location is a vertex on the graph
             try: 
-                self.state.convert_to_node_indices(node_location, new_location, mode="Coords")
+                self.state.coordinates_to_vertex_index(coords=new_location)
             except:
                 continue
    
@@ -146,9 +148,8 @@ class Node:
     #     return hash(str(self.state.adjacency_matrix)+ str(self.state.placed_packages)
     #                 + str(self.state.picked_packages) +str(self.state.archived_packages)
     #                 + str(self.state.special_edges)+ str(self.state.time))
-    
-    
-    
+
+
 def test_node_creation():
     environment_data = {
         "x": 2,

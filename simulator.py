@@ -4,8 +4,11 @@ from state import State
 
 class Simulator:
     def __init__(self, initial_state: State):
+        self.delivery_agents = ["Normal", "Greedy", "A Star", "Real time A Star"]
         self.no_op_count = 0
-        self.normal_agents_count = len([agent for agent in initial_state.agents if agent["type"] == "Normal"])
+        self.normal_agents_count = len([
+            agent for agent in initial_state.agents if agent["type"] in self.delivery_agents
+        ])
         self.current_state = initial_state
         self.states = [self.current_state]
 

@@ -1,6 +1,7 @@
 import numpy as np
 from copy import deepcopy
 
+
 class State:
     def __init__(self, environment_data: dict):
         # Parse state initial parameters
@@ -24,7 +25,6 @@ class State:
         self._update_packages_info()
 
     def coordinates_to_vertex_index(self, coords: list) -> int:
-        
         row, col = coords
         if row < 0 or row >= self.X or col < 0 or col >= self.Y:
             raise ValueError("Coordinates out of bounds")
@@ -133,7 +133,6 @@ class State:
     def convert_to_node_indices(self, current_vertex, next_vertex, mode):
         # The input vertices are list of coordinates
         if mode == "Coords":
-            #print(current_vertex, next_vertex, mode)
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
             next_vertex_index = self.coordinates_to_vertex_index(coords=next_vertex)
             
@@ -214,6 +213,7 @@ class State:
                 )
                 if fragile_edge_step_validation:
                     self.special_edges[edge_idx]["type"] = "always blocked"
+                    self._build_adjacency_matrix()
 
             # Update agent data
             agent_data = self.agents[self.agent_idx]
@@ -303,6 +303,17 @@ class State:
                 print_data += (
                     f"#A 3  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: Greedy agent, "
+                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Number of actions: {a_actions}, "
+                    f"Score: {a_score}\n"
+                )
+            elif agent["type"] == "A Star":
+                a_location = agent["location"]
+                a_score = agent["score"]
+                a_actions = agent["number_of_actions"]
+                print_data += (
+                    f"#A 4  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
+                    f"Agent {agent_idx}: A Star agent, "
                     f"Location: {a_location[0]} {a_location[1]}, "
                     f"Number of actions: {a_actions}, "
                     f"Score: {a_score}\n"

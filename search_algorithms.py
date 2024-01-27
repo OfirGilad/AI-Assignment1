@@ -95,9 +95,6 @@ class SearchAlgorithms:
             return None
 
 
-
-
-
 def test_dijkstra():
     environment_data = {
         "x": 2,

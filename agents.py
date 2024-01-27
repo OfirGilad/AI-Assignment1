@@ -161,26 +161,30 @@ class Agent:
     def greedy_search_action(self):
         node = Node(state=self.state)
         node.expand()
-        best_node =  min(node.get_children(), key=lambda node: node.h_value())
+        best_node = min(node.get_children(), key=lambda child_node: child_node.h_value())
         best_node.state.time -= 1
         return best_node.state, best_node.get_action()
 
     def a_star_action(self):
         node = Node(state=self.state)
-        a_star = InformedSearchAlgorithms(node,True)
-        a_star_res  = a_star.A_star()
+        a_star = InformedSearchAlgorithms(initial_node=node, is_limited=True)
+        a_star_res = a_star.A_star()
         if a_star_res != "fail":
-            a_star_res[0].time -=1
-            return a_star_res
+            state, action = a_star_res
+            if action != "no-op":
+                state.time -= 1
+            return state, action
         return self.state, "no-op"
 
     def real_time_a_star_action(self):
         node = Node(state=self.state)
-        a_star = InformedSearchAlgorithms(node,False,L=10)
-        a_star_res  = a_star.A_star()
+        a_star = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10)
+        a_star_res = a_star.A_star()
         if a_star_res != "fail":
-            a_star_res[0].time -=1
-            return a_star_res
+            state, action = a_star_res
+            if action != "no-op":
+                state.time -= 1
+            return state, action
         return self.state, "no-op"
 
     def perform_action(self):
@@ -195,17 +199,17 @@ def test_agents():
         "x": 2,
         "y": 2,
         "special_edges": [
-            #{"type": "always blocked", "from": [0, 0], "to": [0, 1]},
-            #{"type": "always blocked", "from": [1, 0], "to": [1, 1]},
+            # {"type": "always blocked", "from": [0, 0], "to": [0, 1]},
+            # {"type": "always blocked", "from": [1, 0], "to": [1, 1]},
             # {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
             # {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
             # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
         ],
         "agents": [
             {
-                #"type": "A Star",
-                #"type": "Greedy",
-                "type": "Real time A Star",
+                # "type": "Greedy",
+                "type": "A Star",
+                # "type": "Real time A Star",
                 "location": [2, 2],
                 "score": 0,
                 "packages": list(),
@@ -241,8 +245,9 @@ def test_agents():
     # print(node.search_adjacency_matrix_mst)
     # print(node.heuristic_value)    
     a = Agent(state)
-    state , action = a.perform_action()
-    print( state.print_state(),action )
+    state, action = a.perform_action()
+    print(state.print_state(), action)
+
 
 if __name__ == "__main__":
     test_agents()
