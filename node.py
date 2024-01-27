@@ -12,17 +12,20 @@ class Node:
         self.agent_idx = state.agent_idx
         self.parent = parent
         self.children = list()
-
         self.action = action
         self.depth = 0
         self.path_cost = 0
         self.heuristic_value = 0
-        self._read_parent_data()
-
         self.search_adjacency_matrix = None
         self.search_adjacency_matrix_mst = None
         self._calculate_heuristic_value()
-
+        self.total_cost = self.heuristic_value
+        self._read_parent_data()
+        print(self.heuristic_value,self.path_cost)
+        self.isInOpenList = False
+        self.indexInOpenList = -1
+        
+        
     def _calculate_action_cost(self):
         parent_location = self.parent.state.agents[self.agent_idx]["location"]
         node_location = self.state.agents[self.agent_idx]["location"]
@@ -33,6 +36,7 @@ class Node:
         if self.parent is not None:
             self.depth += self.parent.depth
             self.path_cost += self.parent.path_cost + self._calculate_action_cost()
+            self.total_cost = self.path_cost + self.heuristic_value
 
     def _build_search_adjacency_matrix(self, points_of_interest):
         total_vertices = self.state.total_vertices
@@ -69,40 +73,48 @@ class Node:
                 points_of_interest.append(package["deliver_to"])
             elif package["status"] == "picked":
                 points_of_interest.append(package["deliver_to"])
-
+       
         # Build the adjacency matrix of the points of interest only
         self._build_search_adjacency_matrix(points_of_interest=points_of_interest)
-
+       
         # Finding the minimum spanning tree
         adj_csr_matrix = csr_matrix(self.search_adjacency_matrix)
         mst = minimum_spanning_tree(csgraph=adj_csr_matrix)
         self.search_adjacency_matrix_mst = mst.toarray().astype(int)
 
         # Calculate the heuristic value as the sum of the minimum spanning tree edges
-        self.heuristic_value = np.sum(self.search_adjacency_matrix_mst)
-
+        self.heuristic_value = int(np.sum(self.search_adjacency_matrix_mst))
+     
+        
+    ########### In the future => Reduce time by 1 since the simulator updates time  ###############
     def expand(self):
         possible_moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         node_location = self.state.agents[self.agent_idx]["location"]
         for move in possible_moves:
             new_location = [node_location[0] + move[0], node_location[1] + move[1]]
+            try: 
+                self.state.convert_to_node_indices(node_location, new_location, mode="Coords")
+            except:
+                continue
+   
             if self.state.is_path_available(current_vertex=node_location, next_vertex=new_location, mode="Coords"):
                 # Create new node with time passed by 1
                 node_state = self.state.clone_state(agent_idx=self.agent_idx, time_factor=1)
+                
                 action = node_state.perform_agent_step(
                     current_vertex=node_location,
                     next_vertex=new_location,
                     mode="Coords"
                 )
-                self.state.update_agent_packages_status()
-
+                node_state.update_agent_packages_status()
                 child = Node(
-                    state=self.state,
+                    state=node_state,
                     parent=self,
                     action=action
                 )
-                self.children.append(child)
 
+                self.children.append(child)
+           
     def h_value(self):
         return self.heuristic_value
 
@@ -110,9 +122,33 @@ class Node:
         return self.path_cost
 
     def f_value(self):
-        return self.g_value() + self.h_value()
+        return self.total_cost
 
+    def get_children(self):
+        return self.children
+    
+    def get_action(self):
+        return self.action
+    
+    def get_parent(self):
+        return self.parent
+    
+    def __lt__(self, other):
+        return self.f_value() < other.f_value()
 
+    # def __eq__(self, other):
+    #     return  (self.state.adjacency_matrix == other.state.adjacency_matrix
+    #     and self.state.placed_packages == other.state.placed_packages 
+    #     and self.state.picked_packages == other.state.picked_packages 
+    #     and self.state.archived_packages == other.state.archived_packages)
+
+    # def __hash__(self):
+    #     return hash(str(self.state.adjacency_matrix)+ str(self.state.placed_packages)
+    #                 + str(self.state.picked_packages) +str(self.state.archived_packages)
+    #                 + str(self.state.special_edges)+ str(self.state.time))
+    
+    
+    
 def test_node_creation():
     environment_data = {
         "x": 2,
@@ -135,7 +171,16 @@ def test_node_creation():
         ],
         "placed_packages": [
             {
-                "package_at": [1, 1],
+                "package_at": [2, 1],
+                "from_time": 0,
+                "deliver_to": [2, 0],
+                "before_time": 10,
+                "package_id": 0,
+                "status": "placed",
+                "holder_agent_id": -1
+            },
+            {
+                "package_at": [0, 2],
                 "from_time": 0,
                 "deliver_to": [1, 0],
                 "before_time": 10,

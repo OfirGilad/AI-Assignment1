@@ -1,5 +1,5 @@
 import numpy as np
-
+from copy import deepcopy
 
 class State:
     def __init__(self, environment_data: dict):
@@ -24,6 +24,7 @@ class State:
         self._update_packages_info()
 
     def coordinates_to_vertex_index(self, coords: list) -> int:
+        
         row, col = coords
         if row < 0 or row >= self.X or col < 0 or col >= self.Y:
             raise ValueError("Coordinates out of bounds")
@@ -132,8 +133,10 @@ class State:
     def convert_to_node_indices(self, current_vertex, next_vertex, mode):
         # The input vertices are list of coordinates
         if mode == "Coords":
+            #print(current_vertex, next_vertex, mode)
             current_vertex_index = self.coordinates_to_vertex_index(coords=current_vertex)
             next_vertex_index = self.coordinates_to_vertex_index(coords=next_vertex)
+            
         # The input vertices are indices of the vertices on the graph
         elif mode == "Indices":
             current_vertex_index = current_vertex
@@ -293,24 +296,47 @@ class State:
                     f"Location: {a_location[0]} {a_location[1]}, "
                     f"Number of Actions: {a_actions}\n"
                 )
+            elif agent["type"] == "Greedy":
+                a_location = agent["location"]
+                a_score = agent["score"]
+                a_actions = agent["number_of_actions"]
+                print_data += (
+                    f"#A 3  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
+                    f"Agent {agent_idx}: Greedy agent, "
+                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Number of actions: {a_actions}, "
+                    f"Score: {a_score}\n"
+                )
+            elif agent["type"] == "Real time A Star":
+                a_location = agent["location"]
+                a_score = agent["score"]
+                a_actions = agent["number_of_actions"]
+                print_data += (
+                    f"#A 5  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
+                    f"Agent {agent_idx}: Real time A Star agent, "
+                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Number of actions: {a_actions}, "
+                    f"Score: {a_score}\n"
+                )
             else:
                 raise ValueError("Invalid agent type")
 
         print_data += "\n"
         print_data += f"#T {self.time} ; Total Time unit passed: {self.time}"
-        print(print_data)
+       
+        return print_data
 
     def clone_state(self, agent_idx: int, time_factor: int = 0):
         environment_data = {
             "x": self.X - 1,
             "y": self.Y - 1,
-            "packages": self.packages,
-            "special_edges": self.special_edges,
-            "agents": self.agents,
+            "packages": deepcopy(self.packages),
+            "special_edges": deepcopy(self.special_edges),
+            "agents": deepcopy(self.agents),
             "agent_idx": agent_idx,
             "time": self.time + time_factor,
-            "placed_packages": self.placed_packages,
-            "picked_packages": self.picked_packages,
-            "archived_packages": self.archived_packages
+            "placed_packages": deepcopy(self.placed_packages),
+            "picked_packages": deepcopy(self.picked_packages),
+            "archived_packages": deepcopy(self.archived_packages)
         }
         return State(environment_data=environment_data)

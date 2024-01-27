@@ -1,5 +1,6 @@
 from state import State
 from search_algorithms import SearchAlgorithms
+from informed_search_algorithms import InformedSearchAlgorithms
 from node import Node
 
 
@@ -51,7 +52,7 @@ class Agent:
         while True:
             user_input = input("(Human) Enter your action: ")
             if user_input == "print":
-                self.state.print_state()
+                print(self.state.print_state())
             elif user_input == "next":
                 break
             else:
@@ -159,17 +160,89 @@ class Agent:
 
     def greedy_search_action(self):
         node = Node(state=self.state)
-        return self.state, "no-op"
+        node.expand()
+        best_node =  min(node.get_children(), key=lambda node: node.h_value())
+        best_node.state.time -= 1
+        return best_node.state, best_node.get_action()
 
     def a_star_action(self):
         node = Node(state=self.state)
+        a_star = InformedSearchAlgorithms(node,True)
+        a_star_res  = a_star.A_star()
+        if a_star_res != "fail":
+            a_star_res[0].time -=1
+            return a_star_res
         return self.state, "no-op"
 
     def real_time_a_star_action(self):
         node = Node(state=self.state)
+        a_star = InformedSearchAlgorithms(node,False,L=10)
+        a_star_res  = a_star.A_star()
+        if a_star_res != "fail":
+            a_star_res[0].time -=1
+            return a_star_res
         return self.state, "no-op"
 
     def perform_action(self):
         agent_type = self.state.agents[self.agent_idx]["type"]
         state, action = self.agent_action[agent_type]()
         return state, action
+
+
+def test_agents():
+    
+    environment_data = {
+        "x": 2,
+        "y": 2,
+        "special_edges": [
+            #{"type": "always blocked", "from": [0, 0], "to": [0, 1]},
+            #{"type": "always blocked", "from": [1, 0], "to": [1, 1]},
+            # {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
+            # {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
+            # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
+        ],
+        "agents": [
+            {
+                #"type": "A Star",
+                #"type": "Greedy",
+                "type": "Real time A Star",
+                "location": [2, 2],
+                "score": 0,
+                "packages": list(),
+                "number_of_actions": 0
+            }
+        ],
+        "placed_packages": [
+            {
+                "package_at": [2, 1],
+                "from_time": 0,
+                "deliver_to": [2, 0],
+                "before_time": 10,
+                "package_id": 0,
+                "status": "placed",
+                "holder_agent_id": -1
+            },
+            {
+                "package_at": [0, 2],
+                "from_time": 0,
+                "deliver_to": [1, 0],
+                "before_time": 10,
+                "package_id": 0,
+                "status": "placed",
+                "holder_agent_id": -1
+            }
+        ],
+        "agent_idx": 0
+    }
+    state = State(environment_data=environment_data)
+    # print(graph.adjacency_matrix)
+    # node = Node(state=state)
+    # print(node.search_adjacency_matrix)
+    # print(node.search_adjacency_matrix_mst)
+    # print(node.heuristic_value)    
+    a = Agent(state)
+    state , action = a.perform_action()
+    print( state.print_state(),action )
+
+if __name__ == "__main__":
+    test_agents()

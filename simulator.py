@@ -22,12 +22,12 @@ class Simulator:
         if goal1_validation:
             print("Goal achieved: All available packages have been delivered")
             print(f"Final State:")
-            self.current_state.print_state()
+            print(self.current_state.print_state())
             return True
         elif goal2_validation:
             print("Goal achieved: There is no path for any agent to pick up or deliver any more packages on time")
             print(f"Final State:")
-            self.current_state.print_state()
+            print(self.current_state.print_state())
             return True
         else:
             return False
