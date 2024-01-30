@@ -9,7 +9,7 @@ LIMIT = 10000
 
 
 class InformedSearchAlgorithms:
-    def __init__(self, initial_node: Node, is_limited: bool = False, L = float('inf')):
+    def __init__(self, initial_node: Node, is_limited: bool = False, L = -1):
         self.initial_node = initial_node
         self.SearchManager = SearchManager(initial_node)
         self.NumOfExpansions = 0
@@ -20,8 +20,7 @@ class InformedSearchAlgorithms:
         while self.SearchManager.numOfNodesInOpenList > 0:
             # Node with the lowest f in the open list -  remove and expand it.
             current_node = self.SearchManager.GetCurrentNode()
-            current_node.expand()
-            self.NumOfExpansions += 1
+
             # Assume a global constant of LIMIT expansions (default 10000).
             # If more than LIMIT expansions are done we just return "fail", and the agent does just the "no-op" action.
             if self.NumOfExpansions > LIMIT and self.IsLimited:
@@ -29,7 +28,7 @@ class InformedSearchAlgorithms:
             
             # A* = > Check if goal state = current node's state
             # Realtime A* => The above or check if L expansions were done.
-            if self.is_goal_state(current_node.state) or float(self.NumOfExpansions) == self.L:
+            if self.is_goal_state(current_node.state) or self.NumOfExpansions == self.L:
                 # One of the condition is met => return move decision
                 if current_node.get_parent() is None:
                     # If the last node is the root node
@@ -41,6 +40,10 @@ class InformedSearchAlgorithms:
                     action = temp_node.get_action()
 
                 return action
+
+            # Limit not reached => performing expand
+            current_node.expand()
+            self.NumOfExpansions += 1
           
             # Node does not contain a goal state - handle its children prior to next expansion.
             children = current_node.get_children()
