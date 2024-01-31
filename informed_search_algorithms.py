@@ -9,12 +9,14 @@ LIMIT = 10000
 
 
 class InformedSearchAlgorithms:
-    def __init__(self, initial_node: Node, is_limited: bool = False, L = -1):
+    def __init__(self, initial_node: Node, is_limited: bool = False, L: int = -1, T: float = 0):
         self.initial_node = initial_node
         self.SearchManager = SearchManager(initial_node)
         self.NumOfExpansions = 0
         self.IsLimited = is_limited
         self.L = L
+        self.T = T
+        self.total_time = 0
 
     def A_star(self):
         while self.SearchManager.numOfNodesInOpenList > 0:
@@ -28,7 +30,7 @@ class InformedSearchAlgorithms:
             
             # A* = > Check if goal state = current node's state
             # Realtime A* => The above or check if L expansions were done.
-            if self.is_goal_state(current_node.state) or self.NumOfExpansions == self.L:
+            if self.is_goal_state(current_node.state) or self.NumOfExpansions == self.L or self.total_time >= 1.0:
                 # One of the condition is met => return move decision
                 if current_node.get_parent() is None:
                     # If the last node is the root node
@@ -44,6 +46,7 @@ class InformedSearchAlgorithms:
             # Limit not reached => performing expand
             current_node.expand()
             self.NumOfExpansions += 1
+            self.total_time += self.T
           
             # Node does not contain a goal state - handle its children prior to next expansion.
             children = current_node.get_children()

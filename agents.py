@@ -177,8 +177,9 @@ class Agent:
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
 
-        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True)
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True, T=0)
         a_star_res = informed_search_algorithms.A_star()
+        print(f"Agent Search Time: {informed_search_algorithms.total_time}")
         if a_star_res != "fail":
             action = a_star_res
         else:
@@ -197,6 +198,7 @@ class Agent:
         node = Node(state=self.state)
 
         informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10)
+        print(f"Agent Search Time: {informed_search_algorithms.total_time}")
         a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
             action = a_star_res
