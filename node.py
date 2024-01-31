@@ -86,7 +86,6 @@ class Node:
         # Calculate the heuristic value as the sum of the minimum spanning tree edges
         self.heuristic_value = int(np.sum(self.search_adjacency_matrix_mst))
 
-    ########### In the future => Reduce time by 1 since the simulator updates time  ###############
     def expand(self):
         possible_moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         node_location = self.state.agents[self.agent_idx]["location"]

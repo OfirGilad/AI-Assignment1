@@ -32,15 +32,15 @@ class SearchManager:
         # The node is added to the end of GeneratedUniqueNodesList with the corresponding pair
         # added to StateToIndexMapping
         # The node is then added to the open list
-        if duplicate_index is None :
+        if duplicate_index is None:
             child.isInOpenList = True
             self.StateToIndexMapping[child_key] = self.numOfUniqueGeneratedNodes
             self.GeneratedUniqueNodesList.append(child)
-            heappush(self, self.numOfUniqueGeneratedNodes )
+            heappush(self, self.numOfUniqueGeneratedNodes)
             # self.GeneratedUniqueNodesList[-1].indexInOpenList = self.OpenList.index(self.numOfGeneratedNode )
-            self.numOfUniqueGeneratedNodes +=1
+            self.numOfUniqueGeneratedNodes += 1
           
-        # Duplicate detection => Verify wether or not this is the cheapest path to the state
+        # Duplicate detection => Verify whether this is the cheapest path to the state or not
         else:
             duplicate = self.GeneratedUniqueNodesList[duplicate_index]
             duplicate_status = duplicate.isInOpenList
@@ -52,7 +52,7 @@ class SearchManager:
                 child.isInOpenList = True
                 # Replace the duplicate with child
                 self.GeneratedUniqueNodesList[duplicate_index] = child
-                if duplicate_status == True:
+                if duplicate_status:
                     # Duplicate was in the open list => Update the priority queue according to the child's f-value
                     heapify(self)
                 else:
@@ -67,74 +67,72 @@ class SearchManager:
     #     return (self.f_value()) < (other.f_value())
             
                    
-def heappush(SearchManager: SearchManager, index):
+def heappush(search_manager: SearchManager, index):
     """Push item onto heap, maintaining the heap invariant."""
-    SearchManager.OpenList.append(index)
-    SearchManager.numOfNodesInOpenList += 1
+    search_manager.OpenList.append(index)
+    search_manager.numOfNodesInOpenList += 1
     # print("Push: ",len(SearchManager.OpenList),SearchManager.numOfNodesInOpenList,flush=True)
-    _siftdown(SearchManager, 0, SearchManager.numOfNodesInOpenList-1)
+    _siftdown(search_manager, 0, search_manager.numOfNodesInOpenList-1)
 
 
-def heappop(SearchManager: SearchManager):
+def heappop(search_manager: SearchManager):
     """Pop the smallest item off the heap, maintaining the heap invariant."""
-    lastelt = SearchManager.OpenList.pop()    # raises appropriate IndexError if heap is empty
-    SearchManager.numOfNodesInOpenList = SearchManager.numOfNodesInOpenList - 1
-    if SearchManager.OpenList:
-        returnitem = SearchManager.OpenList[0]
-        SearchManager.OpenList[0] = lastelt
-        _siftup(SearchManager, 0)
+    lastelt = search_manager.OpenList.pop()    # raises appropriate IndexError if heap is empty
+    search_manager.numOfNodesInOpenList = search_manager.numOfNodesInOpenList - 1
+    if search_manager.OpenList:
+        returnitem = search_manager.OpenList[0]
+        search_manager.OpenList[0] = lastelt
+        _siftup(search_manager, 0)
         return returnitem
     return lastelt
 
 
-def heapify(SearchManager: SearchManager):
+def heapify(search_manager: SearchManager):
     """Transform list into a heap, in-place, in O(len(x)) time."""
-    n = SearchManager.numOfNodesInOpenList
+    n = search_manager.numOfNodesInOpenList
     # Transform bottom-up.  The largest index there's any point to looking at
     # is the largest with a child index in-range, so must have 2*i + 1 < n,
     # or i < (n-1)/2.  If n is even = 2*j, this is (2*j-1)/2 = j-1/2 so
     # j-1 is the largest, which is n//2 - 1.  If n is odd = 2*j+1, this is
     # (2*j+1-1)/2 = j so j-1 is the largest, and that's again n//2-1.
     for i in reversed(range(n//2)):
-        _siftup(SearchManager, i)
+        _siftup(search_manager, i)
 
 
-def _siftup(SearchManager: SearchManager, pos):
-    endpos = SearchManager.numOfNodesInOpenList
+def _siftup(search_manager: SearchManager, pos):
+    endpos = search_manager.numOfNodesInOpenList
     startpos = pos
-    newitem = SearchManager.OpenList[pos]
+    newitem = search_manager.OpenList[pos]
     # Bubble up the smaller child until hitting a leaf.
     childpos = 2*pos + 1    # leftmost child position
     while childpos < endpos:
         # Set childpos to index of smaller child.
         rightpos = childpos + 1
-        if rightpos < endpos and not SearchManager.GeneratedUniqueNodesList[SearchManager.OpenList[childpos]] < SearchManager.GeneratedUniqueNodesList[SearchManager.OpenList[rightpos]]:
+        if rightpos < endpos and not search_manager.GeneratedUniqueNodesList[search_manager.OpenList[childpos]] < search_manager.GeneratedUniqueNodesList[search_manager.OpenList[rightpos]]:
             childpos = rightpos
         # Move the smaller child up.
-        SearchManager.OpenList[pos] = SearchManager.OpenList[childpos]
+        search_manager.OpenList[pos] = search_manager.OpenList[childpos]
         pos = childpos
         childpos = 2*pos + 1
     # The leaf at pos is empty now.  Put newitem there, and bubble it up
     # to its final resting place (by sifting its parents down).
-    SearchManager.OpenList[pos] = newitem
-    _siftdown(SearchManager, startpos, pos)            
+    search_manager.OpenList[pos] = newitem
+    _siftdown(search_manager, startpos, pos)
 
 
 # 'heap' is a heap at all indices >= startpos, except possibly for pos.  pos
 # is the index of a leaf with a possibly out-of-order value.  Restore the
 # heap invariant.
-def _siftdown(SearchManager: SearchManager, startpos, pos):
-    newitem = SearchManager.OpenList[pos]
+def _siftdown(search_manager: SearchManager, startpos, pos):
+    newitem = search_manager.OpenList[pos]
     # Follow the path to the root, moving parents down until finding a place
     # newitem fits.
     while pos > startpos:
         parentpos = (pos - 1) >> 1
-        parent = SearchManager.OpenList[parentpos]
-        if SearchManager.GeneratedUniqueNodesList[newitem] < SearchManager.GeneratedUniqueNodesList[parent]:
-            SearchManager.OpenList[pos] = parent
+        parent = search_manager.OpenList[parentpos]
+        if search_manager.GeneratedUniqueNodesList[newitem] < search_manager.GeneratedUniqueNodesList[parent]:
+            search_manager.OpenList[pos] = parent
             pos = parentpos
             continue
         break
-    SearchManager.OpenList[pos] = newitem
-
-####################### End of SearchManager Class ###################
+    search_manager.OpenList[pos] = newitem
