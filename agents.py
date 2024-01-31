@@ -52,7 +52,7 @@ class Agent:
         while True:
             user_input = input("(Human) Enter your action: ")
             if user_input == "print":
-                print(self.state.print_state())
+                print(self.state)
             elif user_input == "next":
                 break
             else:
@@ -269,7 +269,7 @@ def test_agents():
     # print(node.heuristic_value)    
     a = Agent(state)
     state, action = a.perform_action()
-    print(state.print_state(), action)
+    print(state, action)
 
 
 if __name__ == "__main__":

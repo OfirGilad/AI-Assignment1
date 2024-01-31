@@ -247,7 +247,7 @@ class State:
 
         self.perform_agent_step(current_vertex, next_vertex, mode=mode)
 
-    def print_state(self):
+    def __str__(self):
         # Coordinates
         print_data = (
             f"#X {self.X - 1} ; Maximum x coordinate: {self.X - 1}\n"

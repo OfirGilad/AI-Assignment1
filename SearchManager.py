@@ -9,7 +9,7 @@ class SearchManager:
         self.GeneratedUniqueNodesList = [initial_node]
         # The dictionary maps each state to the index of its corresponding node in GeneratedUniqueNodesList
         # (which always remains constant).
-        self.StateToIndexMapping = dict({str(initial_node.state.print_state()): 0})
+        self.StateToIndexMapping = dict({str(initial_node.state): 0})
         # The heap that contains indexes of nodes in L, sorted by their corresponding f-value.
         # The open list is a heap queue.
         # https://docs.python.org/3/library/heapq.html
@@ -26,7 +26,7 @@ class SearchManager:
         
     def ChildrenHandler(self, child: Node):
         # The cost of the path to child through current
-        child_key = str(child.state.print_state())
+        child_key = str(child.state)
         duplicate_index = self.StateToIndexMapping.get(child_key)
         # No duplication => The first node which corresponds to child's state
         # The node is added to the end of GeneratedUniqueNodesList with the corresponding pair
