@@ -262,7 +262,7 @@ def test_agents():
         "agent_idx": 0
     }
     state = State(environment_data=environment_data)
-    # print(graph.adjacency_matrix)
+    # print(state.adjacency_matrix)
     # node = Node(state=state)
     # print(node.search_adjacency_matrix)
     # print(node.search_adjacency_matrix_mst)

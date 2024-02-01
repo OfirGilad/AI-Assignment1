@@ -77,14 +77,17 @@ class Node:
        
         # Build the adjacency matrix of the points of interest only
         self._build_search_adjacency_matrix(points_of_interest=points_of_interest)
-       
-        # Finding the minimum spanning tree
-        adj_csr_matrix = csr_matrix(self.search_adjacency_matrix)
-        mst = minimum_spanning_tree(csgraph=adj_csr_matrix)
-        self.search_adjacency_matrix_mst = mst.toarray().astype(int)
+
+        # Finding the minimum spanning tree (using scipy)
+        # adj_csr_matrix = csr_matrix(self.search_adjacency_matrix)
+        # mst = minimum_spanning_tree(csgraph=adj_csr_matrix)
+        # self.search_adjacency_matrix_mst = mst.toarray().astype(int)
+
+        # Finding the minimum spanning tree (using our own implementation)
+        self.search_adjacency_matrix_mst = SearchAlgorithms.kruskal(self.search_adjacency_matrix)
 
         # Calculate the heuristic value as the sum of the minimum spanning tree edges
-        self.heuristic_value = int(np.sum(self.search_adjacency_matrix_mst))
+        self.heuristic_value = int(np.sum(self.search_adjacency_matrix_mst) / 2)
 
     def expand(self):
         possible_moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
@@ -192,7 +195,7 @@ def test_node_creation():
         "agent_idx": 0
     }
     state = State(environment_data=environment_data)
-    # print(graph.adjacency_matrix)
+    # print(state.adjacency_matrix)
     node = Node(state=state)
     print(node.search_adjacency_matrix)
     print(node.search_adjacency_matrix_mst)

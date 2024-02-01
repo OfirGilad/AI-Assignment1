@@ -2,11 +2,35 @@ import numpy as np
 from state import State
 
 
+class DisjointSet:
+    def __init__(self, size):
+        self.parent = np.arange(size)
+        self.rank = np.zeros(size)
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+
+        if root_x != root_y:
+            if self.rank[root_x] < self.rank[root_y]:
+                self.parent[root_x] = root_y
+            elif self.rank[root_x] > self.rank[root_y]:
+                self.parent[root_y] = root_x
+            else:
+                self.parent[root_y] = root_x
+                self.rank[root_x] += 1
+
+
 class SearchAlgorithms:
     def __init__(self, state: State):
         self.state = state
 
-    def dijkstra(self, src, dest, mode):
+    def dijkstra(self, src, dest, mode: str):
         # convert to node indices
         src_node_index, dest_node_index = self.state.convert_to_node_indices(
             current_vertex=src,
@@ -83,7 +107,7 @@ class SearchAlgorithms:
 
         return distances[dest_node_index], solution_path, distances
 
-    def dijkstra_step(self, src, dest, mode):
+    def dijkstra_step(self, src, dest, mode: str):
         solution_cost, solution_path, distances = self.dijkstra(src=src, dest=dest, mode=mode)
 
         if solution_path is not None:
@@ -93,6 +117,42 @@ class SearchAlgorithms:
             return solution_cost, traverse_pos, step_cost
         else:
             return None
+
+    @staticmethod
+    def kruskal(adjacency_matrix: np.ndarray):
+        adjacency_matrix = adjacency_matrix
+        total_vertices = len(adjacency_matrix)
+
+        # Initialize disjoint set for each node
+        disjoint_set = DisjointSet(size=total_vertices)
+
+        # Initialize a list to store the edges of the MST
+        mst_edges = []
+
+        # Flatten the upper triangle of the adjacency matrix into a list of edges
+        edges = list()
+        for i in range(total_vertices):
+            for j in range(i + 1, total_vertices):
+                if adjacency_matrix[i, j] > 0:
+                    edges.append((adjacency_matrix[i, j], i, j))
+
+        # Sort edges by weight in ascending order
+        edges.sort(key=lambda edge: edge[0])
+
+        for weight, i, j in edges:
+            # Check if adding the edge creates a cycle
+            if disjoint_set.find(i) != disjoint_set.find(j):
+                mst_edges.append((i, j, weight))
+                disjoint_set.union(i, j)
+
+        # Create the MST adjacency matrix
+        mst_adjacency_matrix = np.zeros_like(adjacency_matrix)
+
+        for i, j, weight in mst_edges:
+            mst_adjacency_matrix[i, j] = weight
+            mst_adjacency_matrix[j, i] = weight
+
+        return mst_adjacency_matrix
 
 
 def test_dijkstra():
@@ -108,11 +168,33 @@ def test_dijkstra():
         ]
     }
     state = State(environment_data=environment_data)
-    # print(graph.adjacency_matrix)
+    # print(f"Input: \n{state.adjacency_matrix}")
+
     search_algorithms = SearchAlgorithms(state=state)
     sol = search_algorithms.dijkstra_step(src=[0, 0], dest=[2, 2], mode="Coords")
     print(f"Step Solution: {sol}")
 
 
+def test_kruskal():
+    environment_data = {
+        "x": 2,
+        "y": 2,
+        "special_edges": [
+            # {"type": "always blocked", "from": [0, 0], "to": [0, 1]},
+            # {"type": "always blocked", "from": [1, 0], "to": [1, 1]},
+            # {"type": "always blocked", "from": [2, 1], "to": [2, 2]},
+            # {"type": "always blocked", "from": [1, 1], "to": [1, 2]},
+            # {"type": "always blocked", "from": [0, 0], "to": [1, 0]}
+        ]
+    }
+    state = State(environment_data=environment_data)
+    print(f"Input: \n{state.adjacency_matrix}")
+
+    search_algorithms = SearchAlgorithms(state=state)
+    sol = search_algorithms.kruskal(adjacency_matrix=state.adjacency_matrix)
+    print(f"Solution: \n{sol}")
+
+
 if __name__ == "__main__":
-    test_dijkstra()
+    # test_dijkstra()
+    test_kruskal()
