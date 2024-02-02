@@ -39,7 +39,7 @@ class Node:
             self.path_cost += self.parent.path_cost + self._calculate_action_cost()
             self.total_cost = self.path_cost + self.heuristic_value
 
-    def _build_search_adjacency_matrix(self, points_of_interest):
+    def _build_search_adjacency_matrix(self, points_of_interest: list):
         total_vertices = self.state.total_vertices
         self.search_adjacency_matrix = np.zeros(shape=(total_vertices, total_vertices), dtype=int)
 
@@ -49,13 +49,8 @@ class Node:
         search_algorithms = SearchAlgorithms(state=state_without_agent)
 
         # Build the clique from all the points of interest
-        for point_1 in points_of_interest:
-            for point_2 in points_of_interest:
-                point_1_index, point_2_index = self.state.convert_to_node_indices(
-                    current_vertex=point_1,
-                    next_vertex=point_2,
-                    mode="Coords"
-                )
+        for point_1_index in points_of_interest:
+            for point_2_index in points_of_interest:
                 if point_1_index != point_2_index:
                     step = search_algorithms.dijkstra_step(src=point_1_index, dest=point_2_index, mode="Indices")
                     if step is not None:
@@ -64,19 +59,20 @@ class Node:
 
     def _calculate_heuristic_value(self):
         agent_data = self.state.agents[self.agent_idx]
-        interesting_packages = self.state.placed_packages + agent_data["packages"]
+        interesting_packages = self.state.packages + self.state.placed_packages + agent_data["packages"]
 
         # Search for all points of interest
-        points_of_interest = [agent_data["location"]]
+        points_of_interest = set()
+        points_of_interest.add(self.state.coordinates_to_vertex_index(coords=agent_data["location"]))
         for package in interesting_packages:
-            if package["status"] == "placed":
-                points_of_interest.append(package["package_at"])
-                points_of_interest.append(package["deliver_to"])
+            if package["status"] == "waiting" or package["status"] == "placed":
+                points_of_interest.add(self.state.coordinates_to_vertex_index(coords=package["package_at"]))
+                points_of_interest.add(self.state.coordinates_to_vertex_index(coords=package["deliver_to"]))
             elif package["status"] == "picked":
-                points_of_interest.append(package["deliver_to"])
+                points_of_interest.add(self.state.coordinates_to_vertex_index(coords=package["deliver_to"]))
        
         # Build the adjacency matrix of the points of interest only
-        self._build_search_adjacency_matrix(points_of_interest=points_of_interest)
+        self._build_search_adjacency_matrix(points_of_interest=list(points_of_interest))
 
         # Finding the minimum spanning tree (using scipy)
         # adj_csr_matrix = csr_matrix(self.search_adjacency_matrix)
