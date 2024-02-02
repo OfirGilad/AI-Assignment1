@@ -7,7 +7,7 @@ In order to run the code create a Python environment as follows: \
 `numpy==1.26.3`
 
 And to run the project:
-1. open the [main.py](main.py) script.
+1. open the [main.py](src/main.py) script.
 2. Update the `data_filepath` parameter with the path to the input txt file.
 3. Run the `main` function.
 

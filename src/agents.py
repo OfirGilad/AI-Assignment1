@@ -159,10 +159,13 @@ class Agent:
             return self.state, action_name
 
     def greedy_search_action(self):
+        T = 0
+
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
         node.expand()
-        if len(node.get_action()) != 0:
+        print(f"Agent Search Time: {T}")
+        if len(node.get_children()) != 0:
             best_node = min(node.get_children(), key=lambda child_node: child_node.h_value())
             action = best_node.get_action()
             agent_location = self.state.agents[self.agent_idx]["location"]
@@ -173,11 +176,13 @@ class Agent:
         return self.state, action
 
     def a_star_action(self):
+        T = 0
+
         # Update state
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
 
-        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True, T=0)
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True, T=T)
         a_star_res = informed_search_algorithms.A_star()
         print(f"Agent Search Time: {informed_search_algorithms.total_time}")
         if a_star_res != "fail":
@@ -193,11 +198,13 @@ class Agent:
         return self.state, action
 
     def real_time_a_star_action(self):
+        T = 0
+
         # Update state
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
 
-        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10)
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10, T=T)
         print(f"Agent Search Time: {informed_search_algorithms.total_time}")
         a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
