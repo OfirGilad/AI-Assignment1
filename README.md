@@ -27,12 +27,12 @@ In order to calculate the heuristic value we did the following steps:
 ## The rationale behind selecting this Heuristic function:
 
 The optimal path for our agent to take is the path that will start from the agent current location and pass through:
-1. All the packages in "waiting" status after their time of appearance, and their delivery locations before the due time.
-2. All the packages in "placed" status, and their delivery locations before the due time.
-3. All the delivery locations of the packages picked by the agent.
+1. All the packages in `waiting` status after their time of appearance, and their delivery locations before the due time.
+2. All the packages in `placed` status, and their delivery locations before the due time.
+3. All the delivery locations of the packages in `picked` status by the current agent.
 
-Therefore, we add all these locations into our points of interest list, knowing that if we will find the optimal path, 
-we will reach the simulator goal.
+Therefore, by taking into consideration all these locations, we know that the optimal path that goes in all these points 
+in the correct order, we let us reach the simulator goal.
 
 We notice the following things:
 1. Since we know that the number of packages and their due times are finite,
@@ -43,4 +43,5 @@ We notice the following things:
    heuristic function is admissible (Since the solution path will have go through all the edges at least once, 
    and sometimes twice in some of the edges).
  
-And by combining this information we get that we are guaranteed to find the optimal path to reach our goal.
+By combining this information we get that we are guaranteed to find the optimal path to reach our goal,
+and that why we used this heuristic function.
