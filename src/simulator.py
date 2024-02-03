@@ -37,7 +37,7 @@ class Simulator:
 
     def run(self):
         agent_idx = 0
-        print("# Cycle 0:")
+        print("# Clock Time 0.0:")
         while True:
             # Check if goal achieved
             if self._goal_achieved():
@@ -52,13 +52,16 @@ class Simulator:
             # Print Agent Action
             agent_type = self.current_state.agents[agent_idx]['type']
             print(f"Agent {agent_idx} ({agent_type}) Action: {action}")
-            if action == "no-op" and agent_type == "Normal":
+            if action == "no-op" and agent_type in self.delivery_agents:
                 self.no_op_count += 1
 
-            # Update end of turn parameters
-            agent_idx = (agent_idx + 1) % len(self.current_state.agents)
-            if agent_idx == 0:
-                self.no_op_count = 0
+            # Raise clock by one
+            if agent_type != "Human":
                 self.current_state = self.current_state.clone_state(agent_idx=agent_idx, time_factor=1)
                 self.current_state.update_packages_info()
-                print(f"# Cycle {self.current_state.time}:")
+                print(f"# Clock Time {self.current_state.time}:")
+                agent_idx = (agent_idx + 1) % len(self.current_state.agents)
+
+            # Rest no-op actions
+            if agent_idx == 0:
+                self.no_op_count = 0

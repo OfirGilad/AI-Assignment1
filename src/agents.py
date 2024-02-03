@@ -159,12 +159,18 @@ class Agent:
             return self.state, action_name
 
     def greedy_search_action(self):
-        T = 0
+        T = 0.0
 
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
         node.expand()
         print(f"Agent Search Time: {T}")
+
+        # Update clock time
+        self.state = self.state.clone_state(agent_idx=self.agent_idx, time_factor=T)
+        self.state.update_agent_packages_status()
+
+        # Handle Action
         if len(node.get_children()) != 0:
             best_node = min(node.get_children(), key=lambda child_node: child_node.h_value())
             action = best_node.get_action()
@@ -173,10 +179,11 @@ class Agent:
             self.state.update_agent_packages_status()
         else:
             action = "no-op"
+
         return self.state, action
 
     def a_star_action(self):
-        T = 0
+        T = 0.0
 
         # Update state
         self.state.update_agent_packages_status()
@@ -184,12 +191,18 @@ class Agent:
 
         informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=True, T=T)
         a_star_res = informed_search_algorithms.A_star()
-        print(f"Agent Search Time: {informed_search_algorithms.total_time}")
+        T = informed_search_algorithms.get_total_time()
+        print(f"Agent Search Time: {T}")
         if a_star_res != "fail":
             action = a_star_res
         else:
             action = "no-op"
 
+        # Update clock time
+        self.state = self.state.clone_state(agent_idx=self.agent_idx, time_factor=T)
+        self.state.update_agent_packages_status()
+
+        # Handle action
         if action != "no-op":
             agent_location = self.state.agents[self.agent_idx]["location"]
             self.state.perform_agent_action(current_vertex=agent_location, action=action, mode="Coords")
@@ -198,24 +211,31 @@ class Agent:
         return self.state, action
 
     def real_time_a_star_action(self):
-        T = 0
+        T = 0.0
 
         # Update state
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
 
         informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10, T=T)
-        print(f"Agent Search Time: {informed_search_algorithms.total_time}")
+        T = informed_search_algorithms.get_total_time()
+        print(f"Agent Search Time: {T}")
         a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
             action = a_star_res
         else:
             action = "no-op"
 
+        # Update clock time
+        self.state = self.state.clone_state(agent_idx=self.agent_idx, time_factor=T)
+        self.state.update_agent_packages_status()
+
+        # Handle action
         if action != "no-op":
             agent_location = self.state.agents[self.agent_idx]["location"]
             self.state.perform_agent_action(current_vertex=agent_location, action=action, mode="Coords")
             self.state.update_agent_packages_status()
+
         return self.state, a_star_res
 
     def perform_action(self):

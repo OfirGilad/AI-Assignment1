@@ -21,7 +21,7 @@ In order to calculate the heuristic value we did the following steps:
    4. All the delivery locations of the packages picked up by the agent (Not including other agents picked packages).
 2. We created a new graph and connected only the points of interest, by edges with weights according to the shortest path
    between each 2 points using dijkstra.
-3. We calculated the minimum spanning tree of the new graph.
+3. We calculated the minimum spanning tree of the new graph, using kruskal.
 4. We set the heuristic value as the cost of the minimum spanning tree of the new graph.
 
 ## The rationale behind selecting this Heuristic function:

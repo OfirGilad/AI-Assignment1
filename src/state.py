@@ -18,7 +18,7 @@ class State:
 
         # Parse state additional parameters
         self.agent_idx = environment_data.get("agent_idx", 0)
-        self.time = environment_data.get("time", 0)
+        self.time = environment_data.get("time", 0.0)
         self.placed_packages = environment_data.get("placed_packages", list())
         self.picked_packages = environment_data.get("picked_packages", list())
         self.archived_packages = environment_data.get("archived_packages", list())
@@ -351,7 +351,7 @@ class State:
        
         return print_data
 
-    def clone_state(self, agent_idx: int, time_factor: int = 0):
+    def clone_state(self, agent_idx: int, time_factor: float = 0):
         environment_data = {
             "x": self.X - 1,
             "y": self.Y - 1,
