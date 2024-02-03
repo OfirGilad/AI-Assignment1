@@ -212,15 +212,16 @@ class Agent:
 
     def real_time_a_star_action(self):
         T = 0.0
+        L = 10
 
         # Update state
         self.state.update_agent_packages_status()
         node = Node(state=self.state)
 
-        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=10, T=T)
+        informed_search_algorithms = InformedSearchAlgorithms(initial_node=node, is_limited=False, L=L, T=T)
+        a_star_res = informed_search_algorithms.A_star()
         T = informed_search_algorithms.get_total_time()
         print(f"Agent Search Time: {T}")
-        a_star_res = informed_search_algorithms.A_star()
         if a_star_res != "fail":
             action = a_star_res
         else:
