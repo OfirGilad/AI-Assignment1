@@ -1,0 +1,189 @@
+For the given input.txt, the results for each agent type are:
+
+##############################################################
+# 1. Normal + Interfering Agent:                             #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 0 ; Edge 2: always blocked
+#A 1  L (4,0)  A 20  S 2 ; Agent 0: Normal agent, Location: 4 0, Number of actions: 20, Score: 2
+#A 2  A 2 ; Agent 1: Interfering Agent, Location: (0,0), Number of Actions: 2
+
+#T 39.0 ; Total Time unit passed: 39.0
+
+##############################################################
+# 2. Greedy:                                                 #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 4  T 50 ; Package 0: disappeared, At time 50
+#P 4  T 50 ; Package 1: disappeared, At time 50
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 0 ; Edge 2: always blocked
+#A 3  L 3 1  A 50  S 0 ; Agent 0: Greedy agent, Location: (3,1), Number of actions: 50, Score: 0
+
+#T 50.0 ; Total Time unit passed: 50.0
+
+##############################################################
+# 3. A Star T=0:                                             #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 4  L 0 3  A 19  S 2 ; Agent 0: A Star agent, Location: (0,3), Number of actions: 19, Score: 2
+
+#T 19.0 ; Total Time unit passed: 19.0
+
+##############################################################
+# 4. A Star T=0.000001:                                      #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 4  L 0 3  A 19  S 2 ; Agent 0: A Star agent, Location: (0,3), Number of actions: 19, Score: 2
+
+#T 19.00152 ; Total Time unit passed: 19.00152
+
+##############################################################
+# 5. A Star T=0.01:                                          #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 4  L 0 3  A 19  S 2 ; Agent 0: A Star agent, Location: (0,3), Number of actions: 19, Score: 2
+
+#T 34.2 ; Total Time unit passed: 34.2
+
+##############################################################
+# 6. Real time A Star L=10 T=0.0:                            #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 4  T 50 ; Package 0: disappeared, At time 50
+#P 4  T 50 ; Package 1: disappeared, At time 50
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 50, Score: 0
+
+#T 50.0 ; Total Time unit passed: 50.0
+
+##############################################################
+# 7. Real time A Star L=10 T=0.000001:                       #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 4  T 50 ; Package 0: disappeared, At time 50
+#P 4  T 50 ; Package 1: disappeared, At time 50
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 50, Score: 0
+
+#T 50.00048000000003 ; Total Time unit passed: 50.00048000000003
+
+##############################################################
+# 8. Real time A Star L=10 T=0.01:                           #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 4  T 50 ; Package 0: disappeared, At time 50
+#P 4  T 50 ; Package 1: disappeared, At time 50
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 1 ; Edge 2: fragile
+#A 5  L 3 1  A 46  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 46, Score: 0
+
+#T 50.400000000000034 ; Total Time unit passed: 50.400000000000034
+
+##############################################################
+# 9. Real time A Star L=151 T=0.0:                           #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 0 ; Edge 2: always blocked
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+
+#T 20.0 ; Total Time unit passed: 20.0
+
+##############################################################
+# 10. Real time A Star L=151 T=0.000001:                     #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 0 ; Edge 2: always blocked
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+
+#T 20.001184 ; Total Time unit passed: 20.001184
+
+##############################################################
+# 11. Real time A Star L=151 T=0.01:                         #
+##############################################################
+Goal achieved: All available packages have been delivered or disappeared
+Final State:
+#X 4 ; Maximum x coordinate: 4
+#Y 3 ; Maximum y coordinate: 3
+#P 3  A 0 ; Package 0: delivered, By agent 0
+#P 3  A 0 ; Package 1: delivered, By agent 0
+
+#E 0 ; Edge 0: always blocked
+#E 0 ; Edge 1: always blocked
+#E 0 ; Edge 2: always blocked
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+
+#T 31.84 ; Total Time unit passed: 31.84
