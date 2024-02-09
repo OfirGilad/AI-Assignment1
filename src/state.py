@@ -119,6 +119,10 @@ class State:
 
         current_pickup_packages = self.picked_packages
         for package in current_pickup_packages:
+            # Skip packages not picked by this agent
+            if package["holder_agent_id"] != self.agent_idx:
+                continue
+
             if package["deliver_to"] == agent_data["location"]:
                 agent_data["packages"].remove(package)
                 self.picked_packages.remove(package)
@@ -289,7 +293,12 @@ class State:
 
         for agent_idx, agent in enumerate(self.agents):
             if agent["type"] == "Human":
-                print_data += f"#A 0 ; Agent {agent_idx}: Human agent\n"
+                a_location = agent["location"]
+                print_data += (
+                    f"#A 0  L ({a_location[0]},{a_location[1]}) ; "
+                    f"Agent {agent_idx}: Human agent "
+                    f"Location: ({a_location[0]} {a_location[1]})\n"
+                )
             elif agent["type"] == "Normal":
                 a_location = agent["location"]
                 a_score = agent["score"]
@@ -297,7 +306,7 @@ class State:
                 print_data += (
                     f"#A 1  L ({a_location[0]},{a_location[1]})  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: Normal agent, "
-                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Location: ({a_location[0]} {a_location[1]}), "
                     f"Number of actions: {a_actions}, "
                     f"Score: {a_score}\n"
                 )
@@ -305,7 +314,7 @@ class State:
                 a_location = agent["location"]
                 a_actions = agent["number_of_actions"]
                 print_data += (
-                    f"#A 2  A {a_actions} ; "
+                    f"#A 2  L ({a_location[0]},{a_location[1]})  A {a_actions} ; "
                     f"Agent {agent_idx}: Interfering Agent, "
                     f"Location: ({a_location[0]},{a_location[1]}), "
                     f"Number of Actions: {a_actions}\n"

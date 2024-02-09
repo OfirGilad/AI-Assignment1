@@ -60,7 +60,10 @@ class Simulator:
                 self.current_state = self.current_state.clone_state(agent_idx=agent_idx, time_factor=1)
                 self.current_state.update_packages_info()
                 print(f"# Clock Time {self.current_state.time}:")
-                agent_idx = (agent_idx + 1) % len(self.current_state.agents)
+            else:
+                print("Notice: Human action doesn't effect the Clock Time!")
+
+            agent_idx = (agent_idx + 1) % len(self.current_state.agents)
 
             # Rest no-op actions
             if agent_idx == 0:

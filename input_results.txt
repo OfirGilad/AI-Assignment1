@@ -13,8 +13,8 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 0 ; Edge 2: always blocked
-#A 1  L (4,0)  A 20  S 2 ; Agent 0: Normal agent, Location: 4 0, Number of actions: 20, Score: 2
-#A 2  A 2 ; Agent 1: Interfering Agent, Location: (0,0), Number of Actions: 2
+#A 1  L (4,0)  A 20  S 2 ; Agent 0: Normal agent, Location: (4 0), Number of actions: 20, Score: 2
+#A 2  L (0,0)  A 2 ; Agent 1: Interfering Agent, Location: (0,0), Number of Actions: 2
 
 #T 39.0 ; Total Time unit passed: 39.0
 
