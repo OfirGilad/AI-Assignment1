@@ -99,7 +99,7 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 1 ; Edge 2: fragile
-#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 50, Score: 0
+#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: (3 1), Number of actions: 50, Score: 0
 
 #T 50.0 ; Total Time unit passed: 50.0
 
@@ -116,7 +116,7 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 1 ; Edge 2: fragile
-#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 50, Score: 0
+#A 5  L 3 1  A 50  S 0 ; Agent 0: Real time A Star agent, Location: (3 1), Number of actions: 50, Score: 0
 
 #T 50.00048000000003 ; Total Time unit passed: 50.00048000000003
 
@@ -133,7 +133,7 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 1 ; Edge 2: fragile
-#A 5  L 3 1  A 46  S 0 ; Agent 0: Real time A Star agent, Location: 3 1, Number of actions: 46, Score: 0
+#A 5  L 3 1  A 46  S 0 ; Agent 0: Real time A Star agent, Location: (3 1), Number of actions: 46, Score: 0
 
 #T 50.400000000000034 ; Total Time unit passed: 50.400000000000034
 
@@ -150,7 +150,7 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 0 ; Edge 2: always blocked
-#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: (4 0), Number of actions: 20, Score: 2
 
 #T 20.0 ; Total Time unit passed: 20.0
 
@@ -167,7 +167,7 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 0 ; Edge 2: always blocked
-#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: (4 0), Number of actions: 20, Score: 2
 
 #T 20.001184 ; Total Time unit passed: 20.001184
 
@@ -184,6 +184,6 @@ Final State:
 #E 0 ; Edge 0: always blocked
 #E 0 ; Edge 1: always blocked
 #E 0 ; Edge 2: always blocked
-#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: 4 0, Number of actions: 20, Score: 2
+#A 5  L 4 0  A 20  S 2 ; Agent 0: Real time A Star agent, Location: (4 0), Number of actions: 20, Score: 2
 
 #T 31.84 ; Total Time unit passed: 31.84

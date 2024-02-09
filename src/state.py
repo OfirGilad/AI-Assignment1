@@ -348,7 +348,7 @@ class State:
                 print_data += (
                     f"#A 5  L {a_location[0]} {a_location[1]}  A {a_actions}  S {a_score} ; "
                     f"Agent {agent_idx}: Real time A Star agent, "
-                    f"Location: {a_location[0]} {a_location[1]}, "
+                    f"Location: ({a_location[0]} {a_location[1]}), "
                     f"Number of actions: {a_actions}, "
                     f"Score: {a_score}\n"
                 )
