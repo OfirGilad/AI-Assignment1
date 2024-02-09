@@ -20,9 +20,8 @@ class Node:
         self.search_adjacency_matrix = None
         self.search_adjacency_matrix_mst = None
 
-        self._calculate_heuristic_value()
-        self.total_cost = self.heuristic_value
         self._read_parent_data()
+        self._calculate_heuristic_value()
 
         self.isInOpenList = False
         self.indexInOpenList = -1
@@ -35,9 +34,8 @@ class Node:
 
     def _read_parent_data(self):
         if self.parent is not None:
-            self.depth += self.parent.depth
+            self.depth += self.parent.depth + 1
             self.path_cost += self.parent.path_cost + self._calculate_action_cost()
-            self.total_cost = self.path_cost + self.heuristic_value
 
     def _build_search_adjacency_matrix(self, points_of_interest: list):
         total_vertices = self.state.total_vertices
@@ -122,7 +120,7 @@ class Node:
         return self.path_cost
 
     def f_value(self):
-        return self.total_cost
+        return self.path_cost + self.heuristic_value
 
     def get_children(self):
         return self.children
