@@ -29,7 +29,11 @@ class Node:
     def _calculate_action_cost(self):
         parent_location = self.parent.state.agents[self.agent_idx]["location"]
         node_location = self.state.agents[self.agent_idx]["location"]
-        action_cost = self.parent.state.edge_cost(parent_location, node_location)
+        action_cost = self.parent.state.edge_cost(
+            current_vertex=parent_location,
+            next_vertex=node_location,
+            mode="Coords"
+        )
         return action_cost
 
     def _read_parent_data(self):
