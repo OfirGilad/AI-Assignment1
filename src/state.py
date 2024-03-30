@@ -251,18 +251,29 @@ class State:
             raise ValueError("Invalid step was performed")
 
     def perform_agent_action(self, current_vertex, action: str, mode: str):
+        if mode == "Coords":
+            current_vertex_coords = current_vertex
+        elif mode == "Indices":
+            current_vertex_coords = self.vertex_index_to_coordinates(idx=current_vertex)
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
+
         if action == "Up":
-            next_vertex = [current_vertex[0] - 1, current_vertex[1]]
+            next_vertex_coords = [current_vertex_coords[0] - 1, current_vertex_coords[1]]
         elif action == "Down":
-            next_vertex = [current_vertex[0] + 1, current_vertex[1]]
+            next_vertex_coords = [current_vertex_coords[0] + 1, current_vertex_coords[1]]
         elif action == "Left":
-            next_vertex = [current_vertex[0], current_vertex[1] - 1]
+            next_vertex_coords = [current_vertex_coords[0], current_vertex_coords[1] - 1]
         elif action == "Right":
-            next_vertex = [current_vertex[0], current_vertex[1] + 1]
+            next_vertex_coords = [current_vertex_coords[0], current_vertex_coords[1] + 1]
         else:
             raise ValueError(f"Invalid action: {action}")
 
-        self.perform_agent_step(current_vertex, next_vertex, mode=mode)
+        self.perform_agent_step(
+            current_vertex=current_vertex_coords,
+            next_vertex=next_vertex_coords,
+            mode="Coords"
+        )
 
     def __str__(self):
         # Coordinates
